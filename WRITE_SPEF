@@ -1,0 +1,85 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+using namespace std;
+
+void write(string filename)
+{
+    ofstream ofile;
+    ofile.open (filename,ios::binary | ios::in);
+
+        if (ofile.is_open()){
+            ofile.clear();
+
+            string str;
+            int len;
+            /*  Header Section begin  */
+            str="*SPEF \"IEEE 1481-2009\"\n"; //Spef version
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DESIGN \"Sample\"\n"; //design name
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DATE \""; //date
+            len=str.length();
+            ofile.write(str.c_str(),len);
+            auto t = std::time(nullptr);
+             auto tm = *std::localtime(&t);
+           std::ostringstream oss;
+            oss << put_time(&tm, "%d-%m-%Y");
+             auto sr = oss.str();
+             len=sr.length();
+             ofile.write(sr.c_str(),len);
+             ofile.write("\"\n",2);
+             str="*VENDOR \"Sample Tool\"\n"; //
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*PROGRAM \"Sample Generator\"\n"; //RC EXtrcation tool
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*VERSION \"1.1.0\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DESIGN_FLOW \"Sample Flow\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DIVIDER /\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DELIMITER :\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*BUS_DELIMITER [ ]\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*T_UNIT 1 NS\n"; //time units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*C_UNIT 1 PF\n";  //capcaitence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*R_UNIT 1 OHM\n"; //resistence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*L_UNIT 1 HENRY\n"; //inductence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Header Section end  */
+             /* Nmap Section begin */
+             str="*NAME_MAP\n"; //inductence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Nmap Section end */
+             /* Ports Section begin */
+             str="*PORTS\n"; //inductence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Ports Section end */
+
+       }
+        else {
+            cout<<"unable to open output file"<<endl;
+        }
+    ofile.close();
+}
