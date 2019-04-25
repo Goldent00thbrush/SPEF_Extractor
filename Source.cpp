@@ -3,10 +3,19 @@
 #include <string>
 using namespace std;
 
+struct PINS
+{
+	string name;
+	string direction;
+	string pin_state;
+	int firstcoordinate;
+	int secondcoordinate;
+};
+PINS pins[14];
 void readfromDEF()
 {
 
-	string word,numberofpins;
+	string word,numberofpins,design_name;
 	ifstream DEF;
 	bool designfound = false,pinsfound=false,done=false,direction,point;
 	int count = 0;
@@ -19,7 +28,7 @@ void readfromDEF()
 			if ((word == "DESIGN") && (designfound==false))
 			{
 				DEF >> word;
-				cout << "the design name is:" << word << endl;
+				design_name = word;
 				designfound = true;
 			}
 			if ((word == "PINS") && (pinsfound == false))
@@ -33,7 +42,7 @@ void readfromDEF()
 						if (word == "-")
 						{
 							DEF >> word;
-							cout << word<<endl;
+							pins[count].name = word;
 							direction = false;
 							point = false;
 							do{
@@ -42,18 +51,17 @@ void readfromDEF()
 								if (word == "DIRECTION")
 								{
 									DEF >> word;
-									
-									cout << word << endl;
+									pins[count].direction = word;
 									direction = true;
 								}
 								if (word == "FIXED" || word == "PLACED")
 								{
-									cout << word << endl;
+									pins[count].pin_state=word;
 									DEF>> word;
 									DEF >> word;
-									cout << "firstnumber" << word<<endl;
+									pins[count].firstcoordinate = stoi(word);
 									DEF >> word;
-									cout << "Secondnumber" << word << endl;
+									pins[count].secondcoordinate = stoi(word);
 									point = true;
 								}
 							}while ((direction == false) || (point==false));
@@ -86,6 +94,15 @@ int main()
 {
 
 	readfromDEF();
+	for (int i = 0; i < 14; i++)
+	{
+		cout << pins[i].name <<" ";
+		cout << pins[i].direction<<" ";
+		cout << pins[i].pin_state << " ";
+		cout << pins[i].firstcoordinate <<" ";
+		cout << pins[i].secondcoordinate<<" ";
+		cout << endl;
+	}
 	system("PAUSE");
 	return 0;
 }
