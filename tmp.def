@@ -1,0 +1,395 @@
+# /Users/auc/AUC_Courses/337/Spring 2016/Proj/Samples/Project_3/Sample_2/Test Files/tmp.def
+# Created by Glade release version 4.5.26 compiled on Feb 20 2017 12:44:27
+# Run by auc on host AUCs-MacBook-Pro.local at Thu Mar  9 10:07:04 2017
+
+VERSION 5.8 ;
+NAMESCASESENSITIVE ON ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "<>" ;
+DESIGN RCA_4Bit ;
+UNITS DISTANCE MICRONS 100 ;
+DIEAREA ( 0 0 ) ( 8671 8671 ) ;
+
+ROW ROW_3 core 0 6000 FS DO 5 BY 1 STEP 160 0 ;
+ROW ROW_2 core 0 4000 N DO 5 BY 1 STEP 160 0 ;
+ROW ROW_1 core 0 2000 FS DO 5 BY 1 STEP 160 0 ;
+ROW ROW_0 core 0 0 N DO 5 BY 1 STEP 160 0 ;
+
+TRACKS Y -400 DO 35 STEP 200 LAYER metal1 ;
+TRACKS X -480 DO 54 STEP 160 LAYER metal2 ;
+TRACKS Y -400 DO 35 STEP 200 LAYER metal3 ;
+TRACKS X -480 DO 27 STEP 320 LAYER metal4 ;
+
+VIAS 3 ;
+  - M2_M1
+  + RECT metal1 ( -40 -40 ) ( 40 40 )
+  + RECT via1 ( -20 -20 ) ( 20 20 )
+  + RECT metal2 ( -40 -40 ) ( 40 40 ) ;
+  - M3_M2
+  + RECT metal2 ( -40 -40 ) ( 40 40 )
+  + RECT via2 ( -20 -20 ) ( 20 20 )
+  + RECT metal3 ( -40 -40 ) ( 40 40 ) ;
+  - M4_M3
+  + RECT metal3 ( -40 -40 ) ( 40 40 )
+  + RECT via3 ( -20 -20 ) ( 20 20 )
+  + RECT metal4 ( -60 -60 ) ( 60 60 ) ;
+END VIAS
+
+
+COMPONENTS 43 ;
+  - OAI21X1_1 OAI21X1 + UNPLACED ( 9538 0 ) N ;
+  - OR2X2_2 OR2X2 + UNPLACED ( 10258 0 ) N ;
+  - OAI21X1_4 OAI21X1 + UNPLACED ( 10978 0 ) N ;
+  - OAI21X1_3 OAI21X1 + UNPLACED ( 11698 0 ) N ;
+  - NAND2X1_6 NAND2X1 + UNPLACED ( 12418 0 ) N ;
+  - NAND2X1_7 NAND2X1 + UNPLACED ( 12978 0 ) N ;
+  - NAND2X1_3 NAND2X1 + UNPLACED ( 13538 0 ) N ;
+  - NOR2X1_3 NOR2X1 + UNPLACED ( 14098 0 ) N ;
+  - INVX1_4 INVX1 + UNPLACED ( 14658 0 ) N ;
+  - AND2X2_2 AND2X2 + UNPLACED ( 15058 0 ) N ;
+  - FILL_3_1 FILL + UNPLACED ( 15778 0 ) N ;
+  - BUFX2_5 BUFX2 + UNPLACED ( 16018 0 ) N ;
+  - NOR2X1_1 NOR2X1 + UNPLACED ( 16578 0 ) N ;
+  - NAND2X1_2 NAND2X1 + UNPLACED ( 17138 0 ) N ;
+  - NAND3X1_2 NAND3X1 + UNPLACED ( 17698 0 ) N ;
+  - INVX1_2 INVX1 + UNPLACED ( 9538 2120 ) N ;
+  - AND2X2_4 AND2X2 + UNPLACED ( 9938 2120 ) N ;
+  - BUFX2_3 BUFX2 + UNPLACED ( 10658 2120 ) N ;
+  - NAND2X1_1 NAND2X1 + UNPLACED ( 11218 2120 ) N ;
+  - BUFX2_1 BUFX2 + UNPLACED ( 11778 2120 ) N ;
+  - OAI21X1_2 OAI21X1 + UNPLACED ( 12338 2120 ) N ;
+  - NAND2X1_4 NAND2X1 + UNPLACED ( 13058 2120 ) N ;
+  - NAND3X1_4 NAND3X1 + UNPLACED ( 13618 2120 ) N ;
+  - NOR2X1_4 NOR2X1 + UNPLACED ( 14338 2120 ) N ;
+  - NAND2X1_8 NAND2X1 + UNPLACED ( 14898 2120 ) N ;
+  - OR2X2_3 OR2X2 + UNPLACED ( 15458 2120 ) N ;
+  - NOR2X1_2 NOR2X1 + UNPLACED ( 16178 2120 ) N ;
+  - OAI21X1_6 OAI21X1 + UNPLACED ( 16738 2120 ) N ;
+  - OAI21X1_7 OAI21X1 + UNPLACED ( 17458 2120 ) N ;
+  - AND2X2_1 AND2X2 + UNPLACED ( 18178 2120 ) N ;
+  - OAI21X1_8 OAI21X1 + UNPLACED ( 9538 4240 ) N ;
+  - OAI21X1_5 OAI21X1 + UNPLACED ( 10258 4240 ) N ;
+  - BUFX2_4 BUFX2 + UNPLACED ( 10978 4240 ) N ;
+  - BUFX2_2 BUFX2 + UNPLACED ( 11538 4240 ) N ;
+  - AND2X2_3 AND2X2 + UNPLACED ( 12098 4240 ) N ;
+  - INVX1_1 INVX1 + UNPLACED ( 12818 4240 ) N ;
+  - NAND3X1_3 NAND3X1 + UNPLACED ( 13218 4240 ) N ;
+  - OR2X2_4 OR2X2 + UNPLACED ( 13938 4240 ) N ;
+  - OR2X2_1 OR2X2 + UNPLACED ( 14658 4240 ) N ;
+  - NAND3X1_1 NAND3X1 + UNPLACED ( 15378 4240 ) N ;
+  - FILL_1_1 FILL + UNPLACED ( 16098 4240 ) N ;
+  - NAND2X1_5 NAND2X1 + UNPLACED ( 16338 4240 ) N ;
+  - INVX1_3 INVX1 + UNPLACED ( 16898 4240 ) N ;
+END COMPONENTS
+
+PINS 14 ;
+  - cout + NET cout + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 2197 30 ) N ;
+  - sum<2> + NET sum<2> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 4365 30 ) N ;
+  - a<0> + NET a<0> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 6533 30 ) N ;
+  - a<2> + NET a<2> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 8641 2197 ) N ;
+  - sum<1> + NET sum<1> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 8641 4365 ) N ;
+  - b<0> + NET b<0> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 8641 6533 ) N ;
+  - sum<3> + NET sum<3> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 2197 8641 ) N ;
+  - a<3> + NET a<3> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 4365 8641 ) N ;
+  - a<1> + NET a<1> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 6533 8641 ) N ;
+  - sum<0> + NET sum<0> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -30 -30 ) ( 30 30 ) + FIXED ( 8701 8641 ) N ;
+  - b<1> + NET b<1> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 30 2197 ) N ;
+  - b<2> + NET b<2> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 30 4365 ) N ;
+  - b<3> + NET b<3> + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 30 6533 ) N ;
+  - cin + NET cin + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal1 ( -30 -30 ) ( 30 30 ) + FIXED ( 30 8701 ) N ;
+END PINS
+
+
+SPECIALNETS 16 ;
+- FA2.$abc$87$n9
+  + USE SIGNAL ;
+- FA4.$abc$87$n8
+  + USE SIGNAL ;
+- FA2.$abc$87$n7_1
+  + USE SIGNAL ;
+- FA4.$abc$87$n6
+  + USE SIGNAL ;
+- FA3.$abc$87$n8
+  + USE SIGNAL ;
+- FA4.$abc$87$n9
+  + USE SIGNAL ;
+- FA4.$abc$87$n7_1
+  + USE SIGNAL ;
+- FA3.$abc$87$n9
+  + USE SIGNAL ;
+- FA1.$abc$87$n7_1
+  + USE SIGNAL ;
+- FA1.$abc$87$n8
+  + USE SIGNAL ;
+- FA2.$abc$87$n6
+  + USE SIGNAL ;
+- FA1.$abc$87$n9
+  + USE SIGNAL ;
+- FA1.cout
+  + USE SIGNAL ;
+- FA4.sum
+  + USE SIGNAL ;
+- FA3.$abc$87$n7_1
+  + USE SIGNAL ;
+- FA4.$abc$87$n12
+  + USE SIGNAL ;
+END SPECIALNETS
+
+NETS 50 ;
+- FA2.$abc$87$n9
+  ( NAND3X1_2 Y )
+  ( NAND2X1_4 B )
+  + USE SIGNAL ;
+- FA4.$abc$87$n8
+  ( NAND2X1_7 Y )
+  ( NAND3X1_4 B )
+  ( OAI21X1_8 C )
+  + USE SIGNAL ;
+- FA4.cin
+  ( OAI21X1_6 Y )
+  ( OR2X2_4 A )
+  ( NAND2X1_7 A )
+  ( NOR2X1_4 A )
+  ( AND2X2_4 A )
+  + USE SIGNAL ;
+- sum<0>
+  ( PIN sum<0> )
+  ( BUFX2_1 Y )
+  + USE SIGNAL ;
+- b<3>
+  ( PIN b<3> )
+  ( INVX1_4 A )
+  ( OAI21X1_7 C )
+  + USE SIGNAL ;
+- FA3.cin
+  ( OAI21X1_4 Y )
+  ( OR2X2_3 A )
+  ( NAND2X1_5 A )
+  ( NOR2X1_3 A )
+  ( AND2X2_3 A )
+  + USE SIGNAL ;
+- FA1.sum
+  ( BUFX2_1 A )
+  ( NAND2X1_2 Y )
+  + USE SIGNAL ;
+- FA4.$abc$87$n10
+  ( NOR2X1_4 Y )
+  ( OAI21X1_7 A )
+  ( OAI21X1_8 B )
+  + USE SIGNAL ;
+- FA3.$abc$87$n12
+  ( OAI21X1_5 Y )
+  ( NAND2X1_6 A )
+  + USE SIGNAL ;
+- FA2.$abc$87$n7_1
+  ( OR2X2_2 Y )
+  ( NAND3X1_2 C )
+  + USE SIGNAL ;
+- FA3.sum
+  ( BUFX2_3 A )
+  ( NAND2X1_6 Y )
+  + USE SIGNAL ;
+- FA4.$abc$87$n6
+  ( INVX1_4 Y )
+  ( NAND3X1_4 A )
+  ( OAI21X1_8 A )
+  + USE SIGNAL ;
+- sum<1>
+  ( PIN sum<1> )
+  ( BUFX2_2 Y )
+  + USE SIGNAL ;
+- FA3.$abc$87$n8
+  ( NAND2X1_5 Y )
+  ( NAND3X1_3 B )
+  ( OAI21X1_6 C )
+  + USE SIGNAL ;
+- FA1.$abc$87$n11
+  ( AND2X2_1 Y )
+  ( OAI21X1_1 B )
+  + USE SIGNAL ;
+- FA2.$abc$87$n8
+  ( NAND2X1_3 Y )
+  ( NAND3X1_2 B )
+  ( OAI21X1_4 C )
+  + USE SIGNAL ;
+- FA4.$abc$87$n9
+  ( NAND3X1_4 Y )
+  ( NAND2X1_8 B )
+  + USE SIGNAL ;
+- b<1>
+  ( PIN b<1> )
+  ( INVX1_2 A )
+  ( OAI21X1_3 C )
+  + USE SIGNAL ;
+- a<3>
+  ( PIN a<3> )
+  ( OR2X2_4 B )
+  ( NAND2X1_7 B )
+  ( NOR2X1_4 B )
+  ( AND2X2_4 B )
+  + USE SIGNAL ;
+- FA2.$abc$87$n10
+  ( NOR2X1_2 Y )
+  ( OAI21X1_3 A )
+  ( OAI21X1_4 B )
+  + USE SIGNAL ;
+- cout
+  ( PIN cout )
+  ( BUFX2_5 Y )
+  + USE SIGNAL ;
+- FA1.$abc$87$n12
+  ( OAI21X1_1 Y )
+  ( NAND2X1_2 A )
+  + USE SIGNAL ;
+- FA4.$abc$87$n7_1
+  ( OR2X2_4 Y )
+  ( NAND3X1_4 C )
+  + USE SIGNAL ;
+- FA3.$abc$87$n11
+  ( AND2X2_3 Y )
+  ( OAI21X1_5 B )
+  + USE SIGNAL ;
+- FA2.$abc$87$n11
+  ( AND2X2_2 Y )
+  ( OAI21X1_3 B )
+  + USE SIGNAL ;
+- b<2>
+  ( PIN b<2> )
+  ( INVX1_3 A )
+  ( OAI21X1_5 C )
+  + USE SIGNAL ;
+- FA3.$abc$87$n10
+  ( NOR2X1_3 Y )
+  ( OAI21X1_5 A )
+  ( OAI21X1_6 B )
+  + USE SIGNAL ;
+- FA3.$abc$87$n9
+  ( NAND3X1_3 Y )
+  ( NAND2X1_6 B )
+  + USE SIGNAL ;
+- FA2.$abc$87$n12
+  ( OAI21X1_3 Y )
+  ( NAND2X1_4 A )
+  + USE SIGNAL ;
+- $auto$iopadmap.cc:164:execute$97
+  ( BUFX2_5 A )
+  ( OAI21X1_8 Y )
+  + USE SIGNAL ;
+- FA1.$abc$87$n7_1
+  ( OR2X2_1 Y )
+  ( NAND3X1_1 C )
+  + USE SIGNAL ;
+- FA2.sum
+  ( BUFX2_2 A )
+  ( NAND2X1_4 Y )
+  + USE SIGNAL ;
+- a<0>
+  ( PIN a<0> )
+  ( OR2X2_1 B )
+  ( NAND2X1_1 B )
+  ( NOR2X1_1 B )
+  ( AND2X2_1 B )
+  + USE SIGNAL ;
+- a<1>
+  ( PIN a<1> )
+  ( OR2X2_2 B )
+  ( NAND2X1_3 B )
+  ( NOR2X1_2 B )
+  ( AND2X2_2 B )
+  + USE SIGNAL ;
+- FA1.$abc$87$n8
+  ( NAND2X1_1 Y )
+  ( NAND3X1_1 B )
+  ( OAI21X1_2 C )
+  + USE SIGNAL ;
+- FA1.$abc$87$n6
+  ( INVX1_1 Y )
+  ( NAND3X1_1 A )
+  ( OAI21X1_2 A )
+  + USE SIGNAL ;
+- a<2>
+  ( PIN a<2> )
+  ( OR2X2_3 B )
+  ( NAND2X1_5 B )
+  ( NOR2X1_3 B )
+  ( AND2X2_3 B )
+  + USE SIGNAL ;
+- sum<3>
+  ( PIN sum<3> )
+  ( BUFX2_4 Y )
+  + USE SIGNAL ;
+- FA2.$abc$87$n6
+  ( INVX1_2 Y )
+  ( NAND3X1_2 A )
+  ( OAI21X1_4 A )
+  + USE SIGNAL ;
+- b<0>
+  ( PIN b<0> )
+  ( INVX1_1 A )
+  ( OAI21X1_1 C )
+  + USE SIGNAL ;
+- cin
+  ( PIN cin )
+  ( OR2X2_1 A )
+  ( NAND2X1_1 A )
+  ( NOR2X1_1 A )
+  ( AND2X2_1 A )
+  + USE SIGNAL ;
+- FA1.$abc$87$n9
+  ( NAND3X1_1 Y )
+  ( NAND2X1_2 B )
+  + USE SIGNAL ;
+- FA1.cout
+  ( OAI21X1_2 Y )
+  ( OR2X2_2 A )
+  ( NAND2X1_3 A )
+  ( NOR2X1_2 A )
+  ( AND2X2_2 A )
+  + USE SIGNAL ;
+- FA4.$abc$87$n11
+  ( AND2X2_4 Y )
+  ( OAI21X1_7 B )
+  + USE SIGNAL ;
+- FA3.$abc$87$n6
+  ( INVX1_3 Y )
+  ( NAND3X1_3 A )
+  ( OAI21X1_6 A )
+  + USE SIGNAL ;
+- FA4.sum
+  ( BUFX2_4 A )
+  ( NAND2X1_8 Y )
+  + USE SIGNAL ;
+- FA3.$abc$87$n7_1
+  ( OR2X2_3 Y )
+  ( NAND3X1_3 C )
+  + USE SIGNAL ;
+- FA4.$abc$87$n12
+  ( OAI21X1_7 Y )
+  ( NAND2X1_8 A )
+  + USE SIGNAL ;
+- FA1.$abc$87$n10
+  ( NOR2X1_1 Y )
+  ( OAI21X1_1 A )
+  ( OAI21X1_2 B )
+  + USE SIGNAL ;
+- sum<2>
+  ( PIN sum<2> )
+  ( BUFX2_3 Y )
+  + USE SIGNAL ;
+END NETS
+
+END DESIGN
