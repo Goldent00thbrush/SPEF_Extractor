@@ -3,7 +3,48 @@
 #include <iomanip>
 #include <sstream>
 using namespace std;
+void write(string filename);
+void readfromDEF();
+class map{      //map to keep track of ports
+    struct single{
+        int num;
+        string name;
+    };
+    single *m;
+    int count=0,pn=0;
+public:
+    map(){
+        m=new single [200];
+    }
+    void add(string s){
+        pn++;
+        m[count].num=pn;
+        m[count].name=s;
+        count++;
+    }
+    int search(string s){
+        for (int i=0;i<200;i++)
+            if (m[i].name==s) return m[i].num;
+        return -1;
+    }
+};
 
+int main()
+{
+    cout << "Hello World!" << endl;
+    readfromDEF();
+    write("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//wav.spef");
+    for (int i = 0; i < 14; i++)
+        {
+            cout << pins[i].name <<" ";
+            cout << pins[i].direction<<" ";
+            cout << pins[i].pin_state << " ";
+            cout << pins[i].firstcoordinate <<" ";
+            cout << pins[i].secondcoordinate<<" ";
+            cout << endl;
+        }
+    return 0;
+}
 void write(string filename)
 {
     ofstream ofile;
@@ -50,7 +91,7 @@ void write(string filename)
              str="*DELIMITER :\n";
               len=str.length();
              ofile.write(str.c_str(),len);
-             str="*BUS_DELIMITER [ ]\n";
+             str="*BUS_DELIMITER < >\n";
               len=str.length();
              ofile.write(str.c_str(),len);
              str="*T_UNIT 1 NS\n"; //time units
@@ -66,16 +107,44 @@ void write(string filename)
               len=str.length();
              ofile.write(str.c_str(),len);
              /* Header Section end  */
+
              /* Nmap Section begin */
-             str="*NAME_MAP\n"; //inductence units
+             map m;
+             str="\n*NAME_MAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
+             for (int i=0;i<14;i++)
+             {
+                 m.add(pins[i].name);
+                 str="*"+to_string(m.search(pins[i].name))+" "+pins[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+             }
              /* Nmap Section end */
+
              /* Ports Section begin */
-             str="*PORTS\n"; //inductence units
+             str="\n*PORTS\n";
               len=str.length();
              ofile.write(str.c_str(),len);
              /* Ports Section end */
+
+             /* detailed net Section begin */ //repeat based on number of nets
+             str="\n*D_NET\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CONN\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CAP\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*RES\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*END\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* detailed net Section end */
 
        }
         else {
@@ -83,3 +152,4 @@ void write(string filename)
         }
     ofile.close();
 }
+
