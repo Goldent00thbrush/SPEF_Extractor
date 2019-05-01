@@ -12,13 +12,20 @@ struct PINS
 	int secondcoordinate;
 };
 PINS pins[14];
+struct NETS
+{
+	string name;
+	string connection[7][2];
+};
+NETS nets[51];
+
 void readfromDEF()
 {
 
-	string word,numberofpins,design_name;
+	string word,numberofpins,numberofnets,design_name;
 	ifstream DEF;
-	bool designfound = false,pinsfound=false,done=false,direction,point;
-	int count = 0;
+	bool designfound = false,pinsfound=false,done=false, done2= false,direction,point,netsfound=false, connectionsdone=false;
+	int count = 0,count2=0,count3=0;
 	DEF.open("tmp.def");
 	if (DEF.is_open())
 	{
@@ -35,7 +42,6 @@ void readfromDEF()
 			{
 				DEF >> word; 
 				numberofpins = word;
-				cout << "number of pins: " << numberofpins << endl;
 				while (done == false)
 				{
 					DEF >> word;
@@ -75,14 +81,65 @@ void readfromDEF()
 				}
 				pinsfound = true;
 			}
+			if ((word == "NETS") && (netsfound == false))
+			{
+				DEF >> word;
+				numberofnets = word;
+				
+				while (done2 == false)
+				{
+					DEF >> word;
+					int i = 0;
+							if (word == "-")
+							{
+								DEF >> word;
+								nets[count2].name = word;
+								
+								
+								do {
+									DEF >> word;
+									
+									if (word == "(")
+									{
+
+										DEF >> word;
+										nets[count2].connection[i][0] = word;
+										DEF >> word;
+										nets[count2].connection[i][1] = word;
+									}
+									if (word == ")")
+									{
+										i++;
+									}
+
+
+								
+								} while (word!=";");
+									count2++;
+
+							}
+							if (count2 == stoi(numberofnets))
+							{
+								done2 = true;
+							}
+							
+							
+
+				}
+				netsfound = true;
+			}
 		}
 	}
+	
 
 	else
 	{
 		cout << "unable to open input file" << endl;
 	}
 	DEF.close();
+	
+
+		
 }
 
 void readfromLEF()
@@ -94,15 +151,8 @@ int main()
 {
 
 	readfromDEF();
-	for (int i = 0; i < 14; i++)
-	{
-		cout << pins[i].name <<" ";
-		cout << pins[i].direction<<" ";
-		cout << pins[i].pin_state << " ";
-		cout << pins[i].firstcoordinate <<" ";
-		cout << pins[i].secondcoordinate<<" ";
-		cout << endl;
-	}
+	
+	
 	system("PAUSE");
 	return 0;
 }
