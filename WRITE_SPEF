@@ -14,33 +14,53 @@ class map{      //map to keep track of ports
     int count=0,pn=0;
 public:
     map(){
-        m=new single [200];
+        m=new single [2000];
+        for(int i=0;i<2000;i++)
+        {
+            m[i].name="";
+            m[i].num=-1;
+        }
     }
-    void add(string s){
+    bool add(string s){
+       if(search(s)!=-1) return false;
         pn++;
         m[count].num=pn;
         m[count].name=s;
         count++;
+        return true;
     }
     int search(string s){
-        for (int i=0;i<200;i++)
+        for (int i=0;i<2000;i++)
             if (m[i].name==s) return m[i].num;
         return -1;
     }
 };
 
+struct PINS  //from Marla
+{
+    string name;
+    string direction;
+    string pin_state;
+    int firstcoordinate;
+    int secondcoordinate;
+};
+PINS pins[14];
+int pin_no=14;
+struct NETS
+{
+    string name;
+    string connection[7][2];
+};
+NETS nets[51];
+int net_no=51;
 int main()
 {
     cout << "Hello World!" << endl;
     readfromDEF();
     write("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//wav.spef");
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < net_no; i++)
         {
-            cout << pins[i].name <<" ";
-            cout << pins[i].direction<<" ";
-            cout << pins[i].pin_state << " ";
-            cout << pins[i].firstcoordinate <<" ";
-            cout << pins[i].secondcoordinate<<" ";
+            cout << nets[i].name <<" ";
             cout << endl;
         }
     return 0;
@@ -113,13 +133,21 @@ void write(string filename)
              str="\n*NAME_MAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
-             for (int i=0;i<14;i++)
+             for (int i=0;i<pin_no;i++)
              {
-                 m.add(pins[i].name);
+                if ( m.add(pins[i].name)){
                  str="*"+to_string(m.search(pins[i].name))+" "+pins[i].name+"\n";
                  len=str.length();
                  ofile.write(str.c_str(),len);
+                }
              }
+             for (int i=0;i<net_no;i++)
+             {
+                 if (m.add(nets[i].name)){
+                 str="*"+to_string(m.search(nets[i].name))+" "+nets[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+             }}
              /* Nmap Section end */
 
              /* Ports Section begin */
@@ -129,7 +157,10 @@ void write(string filename)
              /* Ports Section end */
 
              /* detailed net Section begin */ //repeat based on number of nets
-             str="\n*D_NET\n";
+            for(int i=0;i<net_no;i++){
+               int x=m.search(nets[i].name);
+               if (x!=-1){
+             str="\n*D_NET *"+to_string(x)+"\n";
               len=str.length();
              ofile.write(str.c_str(),len);
              str="*CONN\n";
@@ -145,11 +176,135 @@ void write(string filename)
               len=str.length();
              ofile.write(str.c_str(),len);
              /* detailed net Section end */
-
+               }
+        }
        }
         else {
             cout<<"unable to open output file"<<endl;
         }
     ofile.close();
+}
+
+void readfromDEF()
+{
+
+    string word,numberofpins,numberofnets,design_name;
+    ifstream DEF;
+    bool designfound = false,pinsfound=false,done=false, done2= false,direction,point,netsfound=false, connectionsdone=false;
+    int count = 0,count2=0,count3=0;
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//tmp.def");
+    if (DEF.is_open())
+    {
+        while (!DEF.eof())
+        {
+            DEF >> word;
+            if ((word == "DESIGN") && (designfound==false))
+            {
+                DEF >> word;
+                design_name = word;
+                designfound = true;
+            }
+            if ((word == "PINS") && (pinsfound == false))
+            {
+                DEF >> word;
+                numberofpins = word;
+                while (done == false)
+                {
+                    DEF >> word;
+                        if (word == "-")
+                        {
+                            DEF >> word;
+                            pins[count].name = word;
+                            direction = false;
+                            point = false;
+                            do{
+
+                                DEF >> word;
+                                if (word == "DIRECTION")
+                                {
+                                    DEF >> word;
+                                    pins[count].direction = word;
+                                    direction = true;
+                                }
+                                if (word == "FIXED" || word == "PLACED")
+                                {
+                                    pins[count].pin_state=word;
+                                    DEF>> word;
+                                    DEF >> word;
+                                    pins[count].firstcoordinate = stoi(word);
+                                    DEF >> word;
+                                    pins[count].secondcoordinate = stoi(word);
+                                    point = true;
+                                }
+                            }while ((direction == false) || (point==false));
+                            count++;
+                        }
+                        if (count == stoi(numberofpins))
+                        {
+                            done = true;
+                        }
+
+                }
+                pinsfound = true;
+            }
+            if ((word == "NETS") && (netsfound == false))
+            {
+                DEF >> word;
+                numberofnets = word;
+
+                while (done2 == false)
+                {
+                    DEF >> word;
+                    int i = 0;
+                            if (word == "-")
+                            {
+                                DEF >> word;
+                                nets[count2].name = word;
+
+
+                                do {
+                                    DEF >> word;
+
+                                    if (word == "(")
+                                    {
+
+                                        DEF >> word;
+                                        nets[count2].connection[i][0] = word;
+                                        DEF >> word;
+                                        nets[count2].connection[i][1] = word;
+                                    }
+                                    if (word == ")")
+                                    {
+                                        i++;
+                                    }
+
+
+
+                                } while (word!=";");
+                                    count2++;
+
+                            }
+                            if (count2 == stoi(numberofnets))
+                            {
+                                done2 = true;
+                            }
+
+
+
+                }
+                netsfound = true;
+            }
+        }
+    }
+
+
+    else
+    {
+        cout << "unable to open input file" << endl;
+    }
+    DEF.close();
+
+
+
 }
 
