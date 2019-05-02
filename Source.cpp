@@ -16,7 +16,7 @@ vector < PINS > pins; //ALL the pins
 
 struct NETS {
 	string name; //NET NAME
-	string connection[10][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
+	string connection[8][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
 };
 NETS nets[50]; //ALL the nets
 
