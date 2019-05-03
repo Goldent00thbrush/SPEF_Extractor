@@ -16,6 +16,20 @@ Things Done in Parsing the input files(DEF/LEF): *Marla's Part*
 
 6- Design name
 
+Things Done in Calculating the R and C : *Shereen's Part*
+
+- For the resistance part: 
+
+1- Two main functions are constructed for calculating the resistances: the first one is for calculating the resistance per layer and the second one is for calculating the via resistance. both of them return the float resistance required value.
+
+2- The function calculating the layer resistance takes the resistance, width and length values from each struct in the layers vector and plug it into the equation to return the resistance value for the layer.
+
+3- The vias resistance function returns the via resistance value for each via.
+
+- For the capacitance part: 
+
+2- The function calculating the wire capacitance takes the capacitance, width and spacing values from each struct in the layers vector and plug it into the equation to return the capacitance value for the layer.
+
 Things Done in Writing the output file(SPEF): *Aya's Part*
 
 1- Header Section
