@@ -26,7 +26,9 @@ struct Layer {
 	string resistance_value; //Layer resistance value
 	string capacitance_unit; //Layer Capacitance unit (CPERSQDIST Mostly)
 	string capacitance_value; //Layer Capacitance value
-	string edgecapacitance; //Layer edge capacitance 
+	string edge_capacitance; //Layer edge capacitance 
+	string width;
+	string spacing;
 
 };
 vector < Layer > layers; //those are the layers of TYPE ROUTING only
@@ -134,7 +136,7 @@ void readfromDEF() {
 }
 
 void readfromLEF() {
-	string x, x1, x2, x3, x4, width, name;
+	string x, x1, x2, x3, x4, width_l, name,space;
 	bool done = false;
 	int count = 0;
 	ifstream LEF;
@@ -155,6 +157,15 @@ void readfromLEF() {
 					done = false;
 					do {
 						LEF >> x;
+						if (x == "WIDTH")
+						{
+							LEF >> width_l;
+
+						}
+						if (x == "SPACING")
+						{
+							LEF >> space;
+						}
 						if (x == "RESISTANCE") {
 							LEF >> x1; //units	
 							LEF >> x2; //value		
@@ -166,9 +177,10 @@ void readfromLEF() {
 						}
 						if (x == "EDGECAPACITANCE") {
 							LEF >> x;
-							layers.push_back({name,x1,x2,x3,x4,x});
+							layers.push_back({name,x1,x2,x3,x4,x,width_l,space});
 							done = true;
 						}
+						
 					} while (done == false);
 				}
 			}
@@ -193,7 +205,15 @@ void readfromLEF() {
 	}
 	LEF.close();
 }
-
+float calculateWireCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
+	return (width*spacing*capacitance) + (spacing*edge_capacitance); // (WIDTH*SPACING*CPERSQDIST)+(SPACING*EDGECAP)
+}
+float calculateSheetResistance(float sheet_resistance, float length, float width) { //per square //taken from LEF
+	return sheet_resistance * (length / width); //parasitic_resistance
+}
+float calculateViaResistance(float via_resistance) {
+	return via_resistance;
+}
 int main() {
 	int choice;
 	do {
@@ -205,6 +225,20 @@ int main() {
 	else if (choice == 2)
 		readfromLEF();
 
+	float length = 1.4, width = 0.05, spacing = 1.4;
+	cout << "*CAP" << endl;
+	for (int i = 0; i < layers.size(); i++) {
+		cout << i + 1 << "  " << layers[i].name << "  " << calculateWireCapacitance(width, spacing, stof(layers[i].capacitance_value), stof(layers[i].edge_capacitance)) << endl;
+	}
+
+	cout << "*RES" << endl;
+	for (int i = 0; i < layers.size(); i++) {
+		cout << i + 1 << "  " << layers[i].name << "  " << calculateSheetResistance(stof(layers[i].resistance_value), length, width) << endl;
+	}
+	for (int i = 0; i < via.size(); i++) {
+		cout << i + 1 << "  " << via[i].name << "  " << calculateViaResistance(stof(via[i].resistance)) << endl;
+	}
+	cout << "*END" << endl;
 	system("PAUSE");
 	return 0;
 }
