@@ -2,6 +2,10 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
 using namespace std;
 void write(string filename);
 void readfromDEF();
@@ -36,23 +40,21 @@ public:
     }
 };
 
-struct PINS  //from Marla
-{
-    string name;
-    string direction;
-    string pin_state;
-    int firstcoordinate;
-    int secondcoordinate;
+struct PINS {
+    string name; //pin name
+    string direction; //direction of the pin I/O
+    string pin_state; //Pin state ( PLACED or FIXED)
+    int firstcoordinate; // the first coordinate of a pin ex: pin cout has a first coordinate 2197
+    int secondcoordinate; //the second coordinate of a pin ex: pin cout has a second coordinate 30
 };
-PINS pins[14];
-int pin_no=14;
-struct NETS
-{
-    string name;
-    string connection[7][2];
+vector < PINS > pins; //ALL the pins
+struct NETS {
+    string name; //NET NAME
+    string connection[8][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
 };
-NETS nets[51];
-int net_no=51;
+NETS nets[50]; //ALL the nets
+int net_no=50;
+string design_name;
 int main()
 {
     cout << "Hello World!" << endl;
@@ -79,7 +81,7 @@ void write(string filename)
             str="*SPEF \"IEEE 1481-2009\"\n"; //Spef version
              len=str.length();
             ofile.write(str.c_str(),len);
-            str="*DESIGN \"Sample\"\n"; //design name
+            str="*DESIGN \""+design_name+"\"\n"; //design name
              len=str.length();
             ofile.write(str.c_str(),len);
             str="*DATE \""; //date
@@ -102,7 +104,7 @@ void write(string filename)
              str="*VERSION \"1.1.0\"\n";
               len=str.length();
              ofile.write(str.c_str(),len);
-             str="*DESIGN_FLOW \"Sample Flow\"\n";
+             str="*DESIGN_FLOW \"NETLIST_TYPE_VERILOG\"\n";
               len=str.length();
              ofile.write(str.c_str(),len);
              str="*DIVIDER /\n";
@@ -133,7 +135,7 @@ void write(string filename)
              str="\n*NAME_MAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
-             for (int i=0;i<pin_no;i++)
+             for (int i=0;i<pins.size();i++)
              {
                 if ( m.add(pins[i].name)){
                  str="*"+to_string(m.search(pins[i].name))+" "+pins[i].name+"\n";
@@ -185,126 +187,99 @@ void write(string filename)
     ofile.close();
 }
 
-void readfromDEF()
-{
 
-    string word,numberofpins,numberofnets,design_name;
+void readfromDEF() {
+
+    string word, numberofpins, numberofnets;
     ifstream DEF;
-    bool designfound = false,pinsfound=false,done=false, done2= false,direction,point,netsfound=false, connectionsdone=false;
-    int count = 0,count2=0,count3=0;
-    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//tmp.def");
-    if (DEF.is_open())
-    {
-        while (!DEF.eof())
-        {
+    bool designfound = false, pinsfound = false, done = false, done2 = false, direction, point, netsfound = false, connectionsdone = false;
+    int count = 0, count2 = 0, count3 = 0;
+    DEF.open("tmp.def");
+    if (DEF.is_open()) {
+        while (!DEF.eof()) {
             DEF >> word;
-            if ((word == "DESIGN") && (designfound==false))
-            {
+            if ((word == "DESIGN") && (designfound == false)) {
                 DEF >> word;
                 design_name = word;
                 designfound = true;
             }
-            if ((word == "PINS") && (pinsfound == false))
-            {
+            if ((word == "PINS") && (pinsfound == false)) {
                 DEF >> word;
                 numberofpins = word;
-                while (done == false)
-                {
+                string n, dir, first, second, state;
+
+                while (done == false) {
                     DEF >> word;
-                        if (word == "-")
-                        {
+                    if (word == "-") {
+                        DEF >> n; //name
+                        direction = false;
+                        point = false;
+                        do {
                             DEF >> word;
-                            pins[count].name = word;
-                            direction = false;
-                            point = false;
-                            do{
 
+                            if (word == "DIRECTION") {
+                                DEF >> dir;
+                                direction = true;
+                            }
+                            if (word == "FIXED" || word == "PLACED") {
+                                state = word;
                                 DEF >> word;
-                                if (word == "DIRECTION")
-                                {
-                                    DEF >> word;
-                                    pins[count].direction = word;
-                                    direction = true;
-                                }
-                                if (word == "FIXED" || word == "PLACED")
-                                {
-                                    pins[count].pin_state=word;
-                                    DEF>> word;
-                                    DEF >> word;
-                                    pins[count].firstcoordinate = stoi(word);
-                                    DEF >> word;
-                                    pins[count].secondcoordinate = stoi(word);
-                                    point = true;
-                                }
-                            }while ((direction == false) || (point==false));
-                            count++;
-                        }
-                        if (count == stoi(numberofpins))
-                        {
-                            done = true;
-                        }
-
+                                DEF >> first;
+                                DEF >> second;
+                                point = true;
+                                pins.push_back({n,dir,state,stoi(first),stoi(second)});
+                            }
+                        } while ((direction == false) || (point == false));
+                        count++;
+                    }
+                    if (count == stoi(numberofpins)) {
+                        done = true;
+                    }
                 }
                 pinsfound = true;
             }
-            if ((word == "NETS") && (netsfound == false))
-            {
+
+            if ((word == "NETS") && (netsfound == false)) {
                 DEF >> word;
                 numberofnets = word;
 
-                while (done2 == false)
-                {
+                while (done2 == false) {
                     DEF >> word;
                     int i = 0;
-                            if (word == "-")
-                            {
+                    if (word == "-") {
+                        DEF >> word;
+                        nets[count2].name = word;
+
+                        do {
+                            DEF >> word;
+
+                            if (word == "(") {
+
                                 DEF >> word;
-                                nets[count2].name = word;
-
-
-                                do {
-                                    DEF >> word;
-
-                                    if (word == "(")
-                                    {
-
-                                        DEF >> word;
-                                        nets[count2].connection[i][0] = word;
-                                        DEF >> word;
-                                        nets[count2].connection[i][1] = word;
-                                    }
-                                    if (word == ")")
-                                    {
-                                        i++;
-                                    }
-
-
-
-                                } while (word!=";");
-                                    count2++;
-
+                                nets[count2].connection[i][0] = word;
+                                DEF >> word;
+                                nets[count2].connection[i][1] = word;
                             }
-                            if (count2 == stoi(numberofnets))
-                            {
-                                done2 = true;
+                            if (word == ")") {
+                                i++;
                             }
 
+                        } while (word != ";");
+                        count2++;
 
+                    }
+                    if (count2 == stoi(numberofnets)) {
+                        done2 = true;
+                    }
 
                 }
                 netsfound = true;
             }
         }
     }
-
-
-    else
-    {
-        cout << "unable to open input file" << endl;
+    else {
+        cout << "unable to open DEF file" << endl;
     }
     DEF.close();
-
-
-
 }
 
