@@ -15,3 +15,9 @@ Things Done in Parsing the input files(DEF/LEF): *Marla's Part*
 5-Vector of struct "VIA" that contains information about all VIAs (VIA name, resistance)
 
 6- Design name
+
+Things Done in Writing the output file(SPEF): *Aya's Part*
+
+1- Header Section
+
+2- Nmap Section of pins and ports 
