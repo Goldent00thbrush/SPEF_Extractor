@@ -5,20 +5,16 @@
 #include <string>
 using namespace std;
 
-struct PINS {
-	string name; //pin name
-	string direction; //direction of the pin I/O
-	string pin_state; //Pin state ( PLACED or FIXED)
-	int firstcoordinate; // the first coordinate of a pin ex: pin cout has a first coordinate 2197 
-	int secondcoordinate; //the second coordinate of a pin ex: pin cout has a second coordinate 30
+struct  PINS
+{
+	string name;
+	string pin_state;
+	int firstcoordinate;
+	int secondcoordinate;
 };
-vector < PINS > pins; //ALL the pins
+vector <PINS> pins;
 
-struct NETS {
-	string name; //NET NAME
-	string connection[8][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
-};
-NETS nets[50]; //ALL the nets
+
 
 struct Layer {
 	string name; //Layer Name
@@ -40,99 +36,138 @@ struct VIA {
 };
 vector < VIA > via; //ALL the VIAS
 
-void readfromDEF() {
+struct coor
+{
+	string x, y;
+};
 
-	string word, numberofpins, numberofnets, design_name;
+struct conn {
+	string layer;
+	vector<coor> cord;
+
+};
+struct NETS
+{
+	string name;
+	vector<conn> connection;
+	vector <string> vias;
+
+};
+NETS nets[5000];
+
+void readfromDEF()
+{
+	bool pinsfound = false, netsfound = false, finish2 = false;
 	ifstream DEF;
-	bool designfound = false, pinsfound = false, done = false, done2 = false, direction, point, netsfound = false, connectionsdone = false;
-	int count = 0, count2 = 0, count3 = 0;
-	DEF.open("tmp.def");
-	if (DEF.is_open()) {
-		while (!DEF.eof()) {
+	string word;
+	DEF.open("cpu.def");
+
+	if (DEF.is_open())
+	{
+
+		while (!DEF.eof())
+		{
 			DEF >> word;
-			if ((word == "DESIGN") && (designfound == false)) {
-				DEF >> word;
-				design_name = word;
-				designfound = true;
-			}
-			if ((word == "PINS") && (pinsfound == false)) {
-				DEF >> word;
-				numberofpins = word;
-				string n, dir, first, second, state;
+			if (word == "PINS")
+			{
+				int index = 0;
 
-				while (done == false) {
+				while (pinsfound == false)
+				{
 					DEF >> word;
-					if (word == "-") {
-						DEF >> n; //name
-						direction = false;
-						point = false;
-						do {
-							DEF >> word;
+					if (word == "-")
+					{
 
-							if (word == "DIRECTION") {
-								DEF >> dir;
-								direction = true;
-							}
-							if (word == "FIXED" || word == "PLACED") {
-								state = word;
-								DEF >> word;
-								DEF >> first;
-								DEF >> second;
-								point = true;
-								pins.push_back({n,dir,state,stoi(first),stoi(second)});
-							}
-						} while ((direction == false) || (point == false));
-						count++;
-					}
-					if (count == stoi(numberofpins)) {
-						done = true;
-					}
-				}
-				pinsfound = true;
-			}
-
-			if ((word == "NETS") && (netsfound == false)) {
-				DEF >> word;
-				numberofnets = word;
-
-				while (done2 == false) {
-					DEF >> word;
-					int i = 0;
-					if (word == "-") {
+						pins.push_back({ " "," ",0,0 });
 						DEF >> word;
-						nets[count2].name = word;
-
-						do {
-							DEF >> word;
-
-							if (word == "(") {
-
-								DEF >> word;
-								nets[count2].connection[i][0] = word;
-								DEF >> word;
-								nets[count2].connection[i][1] = word;
-							}
-							if (word == ")") {
-								i++;
-							}
-
-						} while (word != ";");
-						count2++;
-
+						pins[index].name = word;
 					}
-					if (count2 == stoi(numberofnets)) {
-						done2 = true;
+					if ((word == "PLACED") || (word == "FIXED"))
+					{
+						pins[index].pin_state = word;
+						DEF >> word;
+						DEF >> word;
+						pins[index].firstcoordinate = stoi(word);
+
+						DEF >> word;
+						pins[index].secondcoordinate = stoi(word);
+						index++;
 					}
+
+					if (word == "END")
+						pinsfound = true;
 
 				}
-				netsfound = true;
 			}
+			if (word == "NETS")
+			{
+				int index2 = 0;
+				int metals_size = 0, firstc = 0;
+				conn c;
+				coor r;
+				int j = 0, k = 0;
+				DEF >> word;
+				DEF >> word;
+				while (word != "END")
+				{
+					DEF >> word;
+					if (word == "-")
+					{
+						DEF >> word;
+						nets[index2].name = word;
+						j = 0;
+					}
+					if ((word == "ROUTED") || (word == "NEW"))
+					{
+						DEF >> word;
+						c.layer = word;
+						//nets[index2].connection[i].layer=word;
+					}
+					if (word == "(")
+					{
+						DEF >> word;
+						r.x = word;
+						// nets[index2].connection[i].cord[j].x=word;
+						firstc++;
+						DEF >> word;
+						r.y = word;
+						// nets[index2].connection[i].cord[j].y=word;
+						j++;
+						c.cord.push_back(r);
+
+					}
+					if (word == ")")
+					{
+						DEF >> word;
+						if ((word != "NEW") && (word != "("))
+						{
+
+							nets[index2].vias.push_back(word);
+							
+							k++;
+						}
+
+					}
+					if (word == ";")
+					{
+						
+						index2++;
+					}
+				}
+
+				nets[index2].connection.push_back(c);
+
+			}
+
 		}
+
 	}
-	else {
-		cout << "unable to open DEF file" << endl;
+	else
+	{
+		cout << "cant open file" << endl;
 	}
-	DEF.close();
+
+
 }
 
 void readfromLEF() {
@@ -215,6 +250,7 @@ float calculateViaResistance(float via_resistance) {
 	return via_resistance;
 }
 int main() {
+	
 	int choice;
 	do {
 		cout << "Which file would you like to enter? 1:DEF 2:LEF" << endl;
@@ -224,7 +260,7 @@ int main() {
 		readfromDEF();
 	else if (choice == 2)
 		readfromLEF();
-
+		
 	cout << "*CAP" << endl;
 	for (int i = 0; i < layers.size(); i++) {
 		cout << i + 1 << "  " << layers[i].name << "  " << calculateWireCapacitance(stof(layers[i].width), stof(layers[i].spacing), stof(layers[i].capacitance_value), stof(layers[i].edge_capacitance)) << endl;
