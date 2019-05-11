@@ -5,7 +5,7 @@
 #include <string>
 #include <cmath>
 using namespace std;
-int nets_size=0; 
+int nets_size = 0;
 struct  PINS
 {
 	string name;
@@ -61,7 +61,7 @@ void readfromDEF()
 	bool pinsfound = false, netsfound = false, finish2 = false;
 	ifstream DEF;
 	string word;
-	int nets_size=0;
+	int nets_size = 0;
 	DEF.open("cpu.def");
 
 	if (DEF.is_open())
@@ -143,18 +143,18 @@ void readfromDEF()
 					if (word == ")")
 					{
 						DEF >> word;
-						if ((word != "NEW") && (word != "(") && (word !=";") && (word!="+"))
+						if ((word != "NEW") && (word != "(") && (word != ";") && (word != "+"))
 						{
-							
+
 							nets[index2].vias.push_back(word);
-							
+
 							k++;
 						}
 
 					}
 					if (word == ";")
 					{
-						
+
 						index2++;
 					}
 				}
@@ -175,7 +175,7 @@ void readfromDEF()
 }
 
 void readfromLEF() {
-	string x, x1, x2, x3, x4, width_l, name,space;
+	string x, x1, x2, x3, x4, width_l, name, space;
 	bool done = false;
 	int count = 0;
 	ifstream LEF;
@@ -216,10 +216,10 @@ void readfromLEF() {
 						}
 						if (x == "EDGECAPACITANCE") {
 							LEF >> x;
-							layers.push_back({name,x1,x2,x3,x4,x,width_l,space});
+							layers.push_back({ name,x1,x2,x3,x4,x,width_l,space });
 							done = true;
 						}
-						
+
 					} while (done == false);
 				}
 			}
@@ -232,7 +232,7 @@ void readfromLEF() {
 					LEF >> x;
 					if (x == "RESISTANCE") {
 						LEF >> res;
-						via.push_back({name2,res});
+						via.push_back({ name2,res });
 						flag = true;
 					}
 				} while (flag == false);
@@ -244,8 +244,8 @@ void readfromLEF() {
 	}
 	LEF.close();
 }
-float calculateSegmentLength(int first_coordinate_x,int second_coordinate_x,int first_coordinate_y,int second_coordinate_y){
-	return	sqrt(pow(first_coordinate_x+second_coordinate_x,2)+pow(first_coordinate_y+second_coordinate_y,2));
+float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, int first_coordinate_y, int second_coordinate_y) {
+	return	sqrt(pow(first_coordinate_x + second_coordinate_x, 2) + pow(first_coordinate_y + second_coordinate_y, 2));
 }
 float calculateSegmentCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
 	return (width*spacing*capacitance) + (spacing*edge_capacitance); // (WIDTH*SPACING*CPERSQDIST)+(SPACING*EDGECAP)
@@ -257,22 +257,17 @@ float calculateViaResistance(float via_resistance) {
 	return via_resistance;
 }
 int main() {
-	
-	int choice;
-	do {
-		cout << "Which file would you like to enter? 1:DEF 2:LEF" << endl;
-		cin >> choice;
-	} while (choice < 1 || choice > 2);
-	if (choice == 1)
-		readfromDEF();
-	else if (choice == 2)
-		readfromLEF();
+
+	readfromDEF();
+	readfromLEF();
 		
-    cout << "*CAP" << endl;
+	
+
+	cout << "*CAP" << endl;
 	for (int i = 0; i < layers.size(); i++) {
 		for (int j = 0; j < nets_size; j++) {
-			for (int k=0;k< nets[j].connection.size();k++){// per segment
-				cout << i + 1 << "  " << layers[i].name << "  " << calculateSegmentCapacitance(stof(layers[i].width),calculateSegmentLength(stoi(nets[i].connection[j].cord[j].x),stoi(nets[i].connection[j].cord[j].y),stoi(nets[i+1].connection[j].cord[j].x),stoi(nets[i+1].connection[j].cord[j].y)) , stof(layers[i].capacitance_value), stof(layers[i].edge_capacitance)) << endl;
+			for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
+				cout << i + 1 << "  " << layers[i].name << "  " << calculateSegmentCapacitance(stof(layers[i].width), calculateSegmentLength(stoi(nets[i].connection[j].cord[j].x), stoi(nets[i+1].connection[j].cord[j].x), stoi(nets[i].connection[j].cord[j].y), stoi(nets[i + 1].connection[j].cord[j].y)), stof(layers[i].capacitance_value), stof(layers[i].edge_capacitance)) << endl;
 			}
 		}
 	}
@@ -280,8 +275,8 @@ int main() {
 	cout << "*RES" << endl;
 	for (int i = 0; i < layers.size(); i++) { //per layers  
 		for (int j = 0; j < nets_size; j++) {//per net
-			for (int k=0;k< nets[j].connection.size();k++){// per segment
-				cout << i + 1 << "  " << layers[i].name << "  " << calculateSheetResistance(stof(layers[i].resistance_value), calculateSegmentLength(stoi(nets[i].connection[j].cord[j].x),stoi(nets[i].connection[j].cord[j].y),stoi(nets[i+1].connection[j].cord[j].x),stoi(nets[i+1].connection[j].cord[j].y)), stoi(layers[i].width)) << endl;
+			for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
+				cout << i + 1 << "  " << layers[i].name << "  " << calculateSheetResistance(stof(layers[i].resistance_value), calculateSegmentLength(stoi(nets[i].connection[j].cord[j].x), stoi(nets[i+1].connection[j].cord[j].x), stoi(nets[i].connection[j].cord[j].y), stoi(nets[i + 1].connection[j].cord[j].y)), stoi(layers[i].width)) << endl;
 			}
 		}
 	}
