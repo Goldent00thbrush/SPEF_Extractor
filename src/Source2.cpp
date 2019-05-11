@@ -36,7 +36,7 @@ void readfromDEF()
     bool pinsfound = false,netsfound=false,finish2=false;
     ifstream DEF;
     string word;
-    DEF.open("cpu.def");
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu.def");
 
         if (DEF.is_open())
         {
@@ -89,7 +89,7 @@ void readfromDEF()
                         nets[index2].name = word;
 
                     }
-                    if ((word == "ROUTED") || (word=="NEW"))
+                    if ((word == "ROUTED") || (word=="NEW") )
                     {
                         int i=0;
                         DEF >> word;
@@ -118,25 +118,26 @@ void readfromDEF()
                             if (word == ")")
                             {
                                 DEF >> word;
-                                if ((word != "NEW") && (word !="("))
+                                if ((word != "NEW") && (word !="(") )
                                 {
 
                                     nets[index2].vias.push_back(word);
-                                    cout << nets[index2].vias[k] << endl;
+                                if (index2==1)   cout << nets[index2].vias.back() << endl;
                                     k++;
                                 }
 
-                            }
+
                             if (word == "NEW")
                                 finish2 = true;
-
-
+}
+                            if (word == "NEW")
+                                finish2 = true;
                         } while (finish2 == false);
                         nets[index2].connection.push_back(c);
 
                         i++;
+}
 
-                    }
                     if (word == ";")
                         index2++;
 
