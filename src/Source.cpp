@@ -139,9 +139,9 @@ void readfromDEF()
 					if (word == ")")
 					{
 						DEF >> word;
-						if ((word != "NEW") && (word != "("))
+						if ((word != "NEW") && (word != "(") && (word !=";") && (word!="+"))
 						{
-
+							
 							nets[index2].vias.push_back(word);
 							
 							k++;
