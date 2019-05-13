@@ -61,7 +61,7 @@ void readfromDEF()
     ifstream DEF;
     string word;
     int nets_size = 0;
-    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu2.def");
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu.def");
 
     if (DEF.is_open())
     {
@@ -105,8 +105,8 @@ void readfromDEF()
             {
                 int index2 = 0;
                 int metals_size = 0, firstc = 0;
-                conn c;
                 coor r;
+                conn c;
                 int j = 0, k = 0;
                 DEF >> word;
                 DEF >> word;
@@ -129,7 +129,7 @@ void readfromDEF()
                     }
                     if (word == "(")
                     {
-                        DEF >> word;
+bracket:                        DEF >> word;
                         r.x = word;
                         // nets[index2].connection[i].cord[j].x=word;
                         firstc++;
@@ -143,13 +143,25 @@ void readfromDEF()
                     if (word == ")")
                     {
                         DEF >> word;
+
+                        if (word=="(") goto bracket;
+
                         if ((word != "NEW") && (word != "(") && (word != ";") && (word != "+"))
                         {
 
                             nets[index2].vias.push_back(word);
-
+                        nets[index2].connection.push_back(c);
+                        conn p;
+                        c=p;
                             k++;
+
                         }
+                      else  if ((word == "NEW") || (word == ";"))
+                       {  nets[index2].connection.push_back(c);
+
+                            conn p;
+                            c=p;
+                }
 
                     }
                     if (word == ";")
@@ -159,7 +171,7 @@ void readfromDEF()
                     }
                    // cout<<nets[index2].name<<" "<<nets[index2].connection.size()<<endl;
                 }
-                nets[index2].connection.push_back(c);
+              //  nets[index2].connection.push_back(c);
 
 
 
