@@ -14,7 +14,11 @@ struct  PINS
     int secondcoordinate;
 };
 vector <PINS> pins;
-
+struct VIA {
+    string name; //the VIA Name
+    string resistance; //the VIA resistance
+};
+vector < VIA > via; //ALL the VIAS
 
 
 struct Layer {
@@ -31,11 +35,7 @@ struct Layer {
 vector < Layer > layers; //those are the layers of TYPE ROUTING only
 vector < string > all_layers; //those are all the layers in a file
 
-struct VIA {
-    string name; //the VIA Name
-    string resistance; //the VIA resistance
-};
-vector < VIA > via; //ALL the VIAS
+
 
 struct coor
 {
@@ -267,18 +267,42 @@ float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, in
 float calculateSegmentCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
     return (width*spacing*capacitance) + (spacing*edge_capacitance); // (WIDTH*SPACING*CPERSQDIST)+(SPACING*EDGECAP)
 }
-float calculateSheetResistance(float sheet_resistance, float length, float width) { //per square //taken from LEF
+float calculateSegmentResistance(float sheet_resistance, float length, float width) { //per square //taken from LEF
     return sheet_resistance * (length / width); //parasitic_resistance
 }
 float calculateViaResistance(float via_resistance) {
     return via_resistance;
 }
-string find_layer(string l)
+string find_layerW(string l)
 {
     for (int i=0;i<layers.size();i++)
     {
         if (l==layers[i].name)
             return layers[i].width;
+    }
+}
+string find_layerR(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].resistance_value;
+    }
+}
+string find_layerC(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].capacitance_value;
+    }
+}
+string find_layerE(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].edge_capacitance;
     }
 }
 int main() {
@@ -296,7 +320,7 @@ int main() {
     {
         cout<<pins[i].name<<"\t"<<pins[i].pin_state<<"\t"<<pins[i].firstcoordinate<<"\t"<<pins[i].secondcoordinate<<endl;
     }*/
-    for (int j = 0; j < 10; j++) {
+   /* for (int j = 0; j < 10; j++) {
         cout<<"Net: "<<endl;
         cout<<nets[j].name<<endl;
         cout<<"conn: "<<endl;
@@ -313,10 +337,23 @@ int main() {
                       nets[j].connection[i].cord[k].y<< endl;
             }
         }
-    }
-    /*
-  //  string x=nets[1].connection[0].cord[0].x;
-              //    cout<< x   <<endl;
+    }*/
+/*
+    int x=stoi(nets[0].connection[0].cord[10].x);
+    int y=stoi(nets[0].connection[0].cord[10].y);
+
+    int x1=stoi(nets[0].connection[0].cord[11].x);
+    int y1=y;
+    float z=calculateSegmentLength(x,x1,y,y1);
+    cout<<z<<endl;
+    cout<<z<<"  "<<stof(layers[0].width)<<" "<<z/stof(layers[0].width)<<endl;
+    cout<<calculateSegmentResistance(stof(layers[0].resistance_value),z,stof(layers[0].width))<<endl;
+    cout<<calculateSegmentCapacitance(stof(layers[0].width),stof(layers[0].spacing),)
+   // int y1=stoi(nets[0].connection[0].cord[11].y);
+
+                  cout<< x <<"  "<<y  <<endl;
+                  cout<< x1 <<"  "<<nets[0].connection[0].cord[11].y  <<endl;
+*/
                           //, stoi(nets[0].connection[0].cord[1].x), stoi(nets[0].connection[0].cord[0].y), stoi(nets[0].connection[0].cord[1].y))<<endl;
             //, stoi(find_layer(nets[0].connection[0].layer)) << endl;
 
@@ -324,24 +361,29 @@ int main() {
     cout << "*CAP" << endl;
         for (int j = 0; j < nets_size; j++) {
             for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
-
-               // cout << i + 1 <<" "<< calculateSegmentCapacitance(stof(find_layer(nets[j].connection[k].layer), calculateSegmentLength(stoi(nets[j].connection[k].cord[j].x), stoi(nets[i].connection[j].cord[j+1].x), stoi(nets[i].connection[j].cord[j].y), stoi(nets[i ].connection[j].cord[j+1].y)), stof(layers[i].capacitance_value), stof(layers[i].edge_capacitance)) << endl;
+                string w= find_layerW(nets[j].connection[k].layer);
+                string c=find_layerC(nets[j].connection[k].layer);
+                string e =find_layerE(nets[j].connection[k].layer);
+                for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                cout << i + 1 <<" "<< calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)) << endl;
             }
         }
-
+}
 
     cout << "*RES" << endl;
-    for (int i = 0; i < layers.size(); i++) { //per layers
         for (int j = 0; j < nets_size; j++) {//per net
             for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
-                cout << i + 1 << "  " << layers[i].name << "  " << calculateSheetResistance(stof(layers[i].resistance_value), calculateSegmentLength(stoi(nets[i].connection[j].cord[j].x), stoi(nets[i+1].connection[j].cord[j].x), stoi(nets[i].connection[j].cord[j].y), stoi(nets[i + 1].connection[j].cord[j].y)), stoi(layers[i].width)) << endl;
-            }
+               string w= find_layerW(nets[j].connection[k].layer);
+               string r=find_layerR(nets[j].connection[k].layer);
+               for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                cout <<nets[j].name << "  " << calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)) << endl;
+            }}
         }
+
+//vias
+        for(int j=0;j<via.size();j++){
+        cout << calculateViaResistance(stof(via[j].resistance)) << endl;
     }
 
-    for (int i = 0; i < via.size(); i++) {
-        cout << i + 1 << "  " << via[i].name << "  " << calculateViaResistance(stof(via[i].resistance)) << endl;
-    }
-    */
     return 0;
 }
