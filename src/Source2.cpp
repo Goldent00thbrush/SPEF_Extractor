@@ -61,7 +61,7 @@ void readfromDEF()
     ifstream DEF;
     string word;
     int nets_size = 0;
-    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu.def");
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu2.def");
 
     if (DEF.is_open())
     {
@@ -163,7 +163,7 @@ void readfromDEF()
 
 
 
-
+            if(word=="END")break;
 
             }
 
@@ -277,10 +277,14 @@ int main() {
    // cout << calculateSheetResistance(stof(find_layer(nets[0].connection[0].layer)),
           //  cout<<calculateSegmentLength(
     nets_size=5000;
-  /*  for (int j = 0; j < 10; j++) {
+   /* for (int j = 0; j < nets_size; j++) {
         cout<<nets[j].name<<endl;
-    } */
-    for (int j = 0; j < 5000; j++) {
+    }
+  /*  for (int i=0;i<pins.size();i++)
+    {
+        cout<<pins[i].name<<"\t"<<pins[i].pin_state<<"\t"<<pins[i].firstcoordinate<<"\t"<<pins[i].secondcoordinate<<endl;
+    }*/
+    for (int j = 0; j < 10; j++) {
         cout<<"Net: "<<endl;
         cout<<nets[j].name<<endl;
         cout<<"conn: "<<endl;
