@@ -50,6 +50,8 @@ struct conn {
 struct NETS
 {
     string name;
+    vector <string> p_type;
+    vector <string> p_name;
     vector<conn> connection;
     vector <string> vias;
 };
@@ -120,6 +122,18 @@ void readfromDEF()
                         nets[index2].name = word;
                         j = 0;
                         nets_size++;
+                        while (word != "+")
+						{
+							DEF >> word;
+							if (word == "(")
+							{
+								DEF >> word;
+								nets[index2].p_type.push_back({ word });
+								DEF >> word;
+								nets[index2].p_name.push_back({ word });
+							}
+
+						}
                     }
                     if ((word == "ROUTED") || (word == "NEW"))
                     {
@@ -180,6 +194,14 @@ bracket:                        DEF >> word;
             }
 
         }
+        for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < nets[i].p_name.size(); j++)
+			{
+				cout << nets[i].p_type[j];
+			}
+			cout << endl;
+		}
 
     }
     else
