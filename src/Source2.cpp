@@ -90,6 +90,8 @@ struct NETS
     vector <string> vias;
 };
 NETS nets[5000];
+vector <float> segmentscapacitances;
+vector <float> segmentsresistances;
 
 void readfromDEF()
 {
@@ -488,6 +490,20 @@ float calculateSegmentResistance(float sheet_resistance, float length, float wid
 float calculateViaResistance(float via_resistance) {
     return via_resistance;
 }
+float capacitanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentscapacitances) {
+	float capacitance_between_nodes = 0.0;
+	for (int i = first_node_index; i<second_node_index;i++){
+		capacitance_between_nodes+=segmentscapacitances[i];
+	}
+    return capacitance_between_nodes;
+}
+float resistanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentsresistances) {
+	float resistance_between_nodes = 0.0;
+	for (int i = first_node_index; i<second_node_index;i++){
+		resistance_between_nodes+=segmentsresistances[i];
+	}
+    return resistance_between_nodes;
+}
 string find_layerW(string l)
 {
     for (int i=0;i<layers.size();i++)
@@ -578,6 +594,7 @@ int main() {
                 string c=find_layerC(nets[j].connection[k].layer);
                 string e =find_layerE(nets[j].connection[k].layer);
                 for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                    segmentscapacitances.push_back(calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)));
                     if (i+1>=nets[j].connection[k].cord.size()) break;
                     if (nets[j].connection[k].cord[i+1].y=="*")
                         nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
@@ -598,6 +615,7 @@ int main() {
                string w= find_layerW(nets[j].connection[k].layer);
                string r=find_layerR(nets[j].connection[k].layer);
                for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                   segmentsresistances.push_back(calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)));
                    if (i+1>=nets[j].connection[k].cord.size()) break;
                    if (nets[j].connection[k].cord[i+1].y=="*")
                        nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
