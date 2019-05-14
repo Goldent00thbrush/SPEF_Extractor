@@ -54,7 +54,8 @@ struct VIA {
 };
 vector < VIA > via; //ALL the VIAS
 
-
+vector <float> segmentscapacitances;
+vector <float> segmentsresistances;
 struct Layer {
     string name; //Layer Name
     string resistance_unit; //Layer resistance unit (RPERSQ Mostly)
@@ -90,8 +91,6 @@ struct NETS
     vector <string> vias;
 };
 NETS nets[5000];
-vector <float> segmentscapacitances;
-vector <float> segmentsresistances;
 
 void readfromDEF()
 {
@@ -338,6 +337,91 @@ void readfromLEF() {
     }
     LEF.close();
 }
+
+
+float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, int first_coordinate_y, int second_coordinate_y) {
+   cout<<"x1: "<<first_coordinate_x<<"x2: "<<second_coordinate_x<<"y "<<sqrt(pow(first_coordinate_x + second_coordinate_x, 2))<<endl;
+    return	sqrt(pow(first_coordinate_x + second_coordinate_x, 2) + pow(first_coordinate_y + second_coordinate_y, 2));
+}
+float calculateSegmentCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
+    return (width*spacing*capacitance) + (spacing*edge_capacitance); // (WIDTH*SPACING*CPERSQDIST)+(SPACING*EDGECAP)
+}
+float calculateSegmentResistance(float sheet_resistance, float length, float width) { //per square //taken from LEF
+    return sheet_resistance * (length / width); //parasitic_resistance
+}
+float calculateViaResistance(float via_resistance) {
+    return via_resistance;
+}
+float capacitanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentscapacitances) {
+    float capacitance_between_nodes = 0.0;
+    for (int i = first_node_index; i<second_node_index;i++){
+        capacitance_between_nodes+=segmentscapacitances[i];
+    }
+    return capacitance_between_nodes;
+}
+float resistanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentsresistances) {
+    float resistance_between_nodes = 0.0;
+    for (int i = first_node_index; i<second_node_index;i++){
+        resistance_between_nodes+=segmentsresistances[i];
+    }
+    return resistance_between_nodes;
+}
+string find_layerW(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].width;
+    }
+}
+string find_layerR(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].resistance_value;
+    }
+}
+string find_layerC(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].capacitance_value;
+    }
+}
+string find_layerE(string l)
+{
+    for (int i=0;i<layers.size();i++)
+    {
+        if (l==layers[i].name)
+            return layers[i].edge_capacitance;
+    }
+}
+float lumpedCapacitance(int i)
+{
+    float l=0;
+    for (int k = 0; k < nets[i].connection.size()-1; k++) {// per segment
+                     string w= find_layerW(nets[i].connection[k].layer);
+                     string c=find_layerC(nets[i].connection[k].layer);
+                     string e =find_layerE(nets[i].connection[k].layer);
+                     for (int j=0;j<nets[i].connection[k].cord.size();j++){
+                         if (j+1>=nets[i].connection[k].cord.size()) break;
+                         if (nets[i].connection[k].cord[j+1].y=="*")
+                             nets[i].connection[k].cord[j+1].y=nets[i].connection[k].cord[j].y;
+                         if (nets[i].connection[k].cord[j+1].x=="*")
+                             nets[i].connection[k].cord[j+1].x=nets[i].connection[k].cord[j].x;
+                         if (nets[i].connection[k].cord[j].y=="*")
+                             nets[i].connection[k].cord[j].y=nets[i].connection[k].cord[j+1].y;
+                         if (nets[i].connection[k].cord[j].x=="*")
+                             nets[i].connection[k].cord[j].x=nets[i].connection[k].cord[j+1].x;
+                      l+=calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[i].connection[k].cord[j].x), stoi(nets[i].connection[k].cord[j+1].x), stoi(nets[i].connection[k].cord[j].y), stoi(nets[i].connection[k].cord[j+1].y)),  stof(c), stof(e));
+
+                     }
+}
+    return l;
+}
+
 void write(string filename)
 {
     ofstream ofile;
@@ -451,12 +535,34 @@ void write(string filename)
             for(int i=0;i<nets_size;i++){
                int x=m.search(nets[i].name);
                if (x!=-1){
-             str="\n*D_NET *"+to_string(x)+"\n";
-              len=str.length();
-             ofile.write(str.c_str(),len);
+             str="\n*D_NET *"+to_string(x);
+             len=str.length();
+            ofile.write(str.c_str(),len);
+             float c=lumpedCapacitance(i);
+             str=" "+to_string(c)+"\n";
+             len=str.length();
+            ofile.write(str.c_str(),len);
              str="*CONN\n";
               len=str.length();
              ofile.write(str.c_str(),len);
+             for (int j=0;j<nets[i].p_name.size();j++)
+             {
+                 string type="";
+                 if(nets[i].p_type[j]=="PIN"){
+                     for(int i=0;i<pins.size();i++)
+                         if (pins[i].name==nets[i].p_name[j]){type=pins[i].direction;break;}
+                     if ( m.add(nets[i].p_name[j])){
+                 str="*P *"+to_string(m.search(nets[i].p_name[j]))+"\n";
+                  len=str.length();
+                 ofile.write(str.c_str(),len);
+                     }}
+                 else {
+
+                         str="*I "+nets[i].p_type[j]+":"+nets[i].p_name[j]+"\n";
+                          len=str.length();
+                         ofile.write(str.c_str(),len);
+
+             }}
              str="*CAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
@@ -476,66 +582,6 @@ void write(string filename)
     ofile.close();
 }
 
-
-float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, int first_coordinate_y, int second_coordinate_y) {
-   cout<<"x1: "<<first_coordinate_x<<"x2: "<<second_coordinate_x<<"y "<<sqrt(pow(first_coordinate_x + second_coordinate_x, 2))<<endl;
-    return	sqrt(pow(first_coordinate_x + second_coordinate_x, 2) + pow(first_coordinate_y + second_coordinate_y, 2));
-}
-float calculateSegmentCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
-    return (width*spacing*capacitance) + (spacing*edge_capacitance); // (WIDTH*SPACING*CPERSQDIST)+(SPACING*EDGECAP)
-}
-float calculateSegmentResistance(float sheet_resistance, float length, float width) { //per square //taken from LEF
-    return sheet_resistance * (length / width); //parasitic_resistance
-}
-float calculateViaResistance(float via_resistance) {
-    return via_resistance;
-}
-float capacitanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentscapacitances) {
-	float capacitance_between_nodes = 0.0;
-	for (int i = first_node_index; i<second_node_index;i++){
-		capacitance_between_nodes+=segmentscapacitances[i];
-	}
-    return capacitance_between_nodes;
-}
-float resistanceBetweenNodes(int first_node_index, int second_node_index, vector<float>segmentsresistances) {
-	float resistance_between_nodes = 0.0;
-	for (int i = first_node_index; i<second_node_index;i++){
-		resistance_between_nodes+=segmentsresistances[i];
-	}
-    return resistance_between_nodes;
-}
-string find_layerW(string l)
-{
-    for (int i=0;i<layers.size();i++)
-    {
-        if (l==layers[i].name)
-            return layers[i].width;
-    }
-}
-string find_layerR(string l)
-{
-    for (int i=0;i<layers.size();i++)
-    {
-        if (l==layers[i].name)
-            return layers[i].resistance_value;
-    }
-}
-string find_layerC(string l)
-{
-    for (int i=0;i<layers.size();i++)
-    {
-        if (l==layers[i].name)
-            return layers[i].capacitance_value;
-    }
-}
-string find_layerE(string l)
-{
-    for (int i=0;i<layers.size();i++)
-    {
-        if (l==layers[i].name)
-            return layers[i].edge_capacitance;
-    }
-}
 int main() {
 
     readfromDEF();
@@ -594,7 +640,6 @@ int main() {
                 string c=find_layerC(nets[j].connection[k].layer);
                 string e =find_layerE(nets[j].connection[k].layer);
                 for (int i=0;i<nets[j].connection[k].cord.size();i++){
-                    segmentscapacitances.push_back(calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)));
                     if (i+1>=nets[j].connection[k].cord.size()) break;
                     if (nets[j].connection[k].cord[i+1].y=="*")
                         nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
@@ -605,7 +650,9 @@ int main() {
                     if (nets[j].connection[k].cord[i].x=="*")
                         nets[j].connection[k].cord[i].x=nets[j].connection[k].cord[i+1].x;
                 cout << i + 1 <<" "<< calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)) << endl;
-            }
+                segmentscapacitances.push_back(calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)));
+
+                }
         }
 }
 
@@ -615,7 +662,6 @@ int main() {
                string w= find_layerW(nets[j].connection[k].layer);
                string r=find_layerR(nets[j].connection[k].layer);
                for (int i=0;i<nets[j].connection[k].cord.size();i++){
-                   segmentsresistances.push_back(calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)));
                    if (i+1>=nets[j].connection[k].cord.size()) break;
                    if (nets[j].connection[k].cord[i+1].y=="*")
                        nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
@@ -626,7 +672,9 @@ int main() {
                    if (nets[j].connection[k].cord[i].x=="*")
                        nets[j].connection[k].cord[i].x=nets[j].connection[k].cord[i+1].x;
                 cout <<nets[j].name << "  " << calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)) << endl;
-            }}
+                segmentsresistances.push_back(calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)));
+
+               }}
         }
 
 //vias
