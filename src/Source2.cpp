@@ -17,8 +17,8 @@ class map{      //map to keep track of ports
     int count=0,pn=0;
 public:
     map(){
-        m=new single [2000];
-        for(int i=0;i<2000;i++)
+        m=new single [10000];
+        for(int i=0;i<10000;i++)
         {
             m[i].name="";
             m[i].num=-1;
@@ -28,6 +28,7 @@ public:
        if(search(s)!=-1) return false;
         pn++;
         m[count].num=pn;
+
         m[count].name=s;
         count++;
         return true;
@@ -551,18 +552,32 @@ void write(string filename)
                  if(nets[i].p_type[j]=="PIN"){
                      for(int i=0;i<pins.size();i++)
                          if (pins[i].name==nets[i].p_name[j]){type=pins[i].direction;break;}
+                     if (type=="INPUT") type="I";
+                     if (type=="OUTPUT") type="O";
                      if ( m.add(nets[i].p_name[j])){
-                 str="*P *"+to_string(m.search(nets[i].p_name[j]))+"\n";
+                 str="*P *"+to_string(m.search(nets[i].p_name[j]))+" "+type+"\n";
                   len=str.length();
                  ofile.write(str.c_str(),len);
+                     }
+                     else {
+                         str="*P "+nets[i].p_name[j]+" "+type+"\n";
+                          len=str.length();
+                         ofile.write(str.c_str(),len);
                      }}
                  else {
 
-                         str="*I "+nets[i].p_type[j]+":"+nets[i].p_name[j]+"\n";
+                     if ( m.add(nets[i].p_type[j])){
+                     str="*I *"+to_string(m.search(nets[i].p_type[j]))+":"+nets[i].p_name[j]+" "+type+"\n";
                           len=str.length();
                          ofile.write(str.c_str(),len);
-
-             }}
+                    }
+                     else {
+                         str="*I "+nets[i].p_type[j]+":"+nets[i].p_name[j]+" "+type+"\n";
+                              len=str.length();
+                             ofile.write(str.c_str(),len);
+                     }
+             }
+             }
              str="*CAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
