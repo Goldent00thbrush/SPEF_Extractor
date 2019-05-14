@@ -402,7 +402,7 @@ string find_layerE(string l)
 float lumpedCapacitance(int i)
 {
     float l=0;
-    for (int k = 0; k < nets[i].connection.size()-1; k++) {// per segment
+    for (int k = 0; k < nets[i].connection.size(); k++) {// per segment
                      string w= find_layerW(nets[i].connection[k].layer);
                      string c=find_layerC(nets[i].connection[k].layer);
                      string e =find_layerE(nets[i].connection[k].layer);
@@ -422,7 +422,35 @@ float lumpedCapacitance(int i)
 }
     return l;
 }
+float Resistance2 (int j){
+    float r2=0;
+    for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
+       string w= find_layerW(nets[j].connection[k].layer);
+       string r=find_layerR(nets[j].connection[k].layer);
+       for (int i=0;i<nets[j].connection[k].cord.size();i++){
+           if (i+1>=nets[j].connection[k].cord.size()) break;
+           if (nets[j].connection[k].cord[i+1].y=="*")
+               nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
+           if (nets[j].connection[k].cord[i+1].x=="*")
+               nets[j].connection[k].cord[i+1].x=nets[j].connection[k].cord[i].x;
+           if (nets[j].connection[k].cord[i].y=="*")
+               nets[j].connection[k].cord[i].y=nets[j].connection[k].cord[i+1].y;
+           if (nets[j].connection[k].cord[i].x=="*")
+               nets[j].connection[k].cord[i].x=nets[j].connection[k].cord[i+1].x;
+       r2+=calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)) ;
 
+       }
+    }
+    for (int i=0;i<nets[j].vias.size();i++)
+    {
+        for (int k=0;k<via.size();k++)
+        {
+            if (nets[j].vias[i]==via[k].name)
+            {r2+=stof(via[k].resistance); break;}
+        }
+    }
+    return r2;
+}
 void write(string filename)
 {
     ofstream ofile;
@@ -581,9 +609,35 @@ void write(string filename)
              str="*CAP\n";
               len=str.length();
              ofile.write(str.c_str(),len);
+             if (nets[i].p_name.size()==2)
+             {float q=lumpedCapacitance(i);
+                 if (nets[i].p_type[0]=="PIN")
+                 str="1 "+nets[i].p_name[0]+" ";
+                 else
+                     str="1 "+nets[i].p_type[0]+":"+nets[i].p_name[0]+" ";
+                 if (nets[i].p_type[1]=="PIN")
+                         str+=nets[i].p_name[1]+" "+to_string(q)+"\n";
+                 else
+                     str+=nets[i].p_type[1]+":"+nets[i].p_name[1]+" "+to_string(q)+"\n";
+                 len=str.length();
+                ofile.write(str.c_str(),len);
+             }
              str="*RES\n";
               len=str.length();
              ofile.write(str.c_str(),len);
+             if (nets[i].p_name.size()==2)
+             {float q=Resistance2(i);
+                 if (nets[i].p_type[0]=="PIN")
+                 str="1 "+nets[i].p_name[0]+" ";
+                 else
+                     str="1 "+nets[i].p_type[0]+":"+nets[i].p_name[0]+" ";
+                 if (nets[i].p_type[1]=="PIN")
+                         str+=nets[i].p_name[1]+" "+to_string(q)+"\n";
+                 else
+                     str+=nets[i].p_type[1]+":"+nets[i].p_name[1]+" "+to_string(q)+"\n";
+                 len=str.length();
+                ofile.write(str.c_str(),len);
+             }
              str="*END\n";
               len=str.length();
              ofile.write(str.c_str(),len);
@@ -647,7 +701,7 @@ int main() {
 */
                           //, stoi(nets[0].connection[0].cord[1].x), stoi(nets[0].connection[0].cord[0].y), stoi(nets[0].connection[0].cord[1].y))<<endl;
             //, stoi(find_layer(nets[0].connection[0].layer)) << endl;
-
+/*
     cout << "*CAP" << endl;
         for (int j = 0; j < nets_size; j++) {
             for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
@@ -696,6 +750,6 @@ int main() {
         for(int j=0;j<via.size();j++){
         cout << calculateViaResistance(stof(via[j].resistance)) << endl;
     }
-
+*/
     return 0;
 }
