@@ -4,12 +4,46 @@
 #include <algorithm>
 #include <string>
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 using namespace std;
-int nets_size = 0;
+string design_name,bus_del,divd;
+class map{      //map to keep track of ports
+    struct single{
+        int num;
+        string name;
+    };
+    single *m;
+    int count=0,pn=0;
+public:
+    map(){
+        m=new single [2000];
+        for(int i=0;i<2000;i++)
+        {
+            m[i].name="";
+            m[i].num=-1;
+        }
+    }
+    bool add(string s){
+       if(search(s)!=-1) return false;
+        pn++;
+        m[count].num=pn;
+        m[count].name=s;
+        count++;
+        return true;
+    }
+    int search(string s){
+        for (int i=0;i<2000;i++)
+            if (m[i].name==s) return m[i].num;
+        return -1;
+    }
+};
+int nets_size = 5000;
 struct  PINS
 {
     string name;
     string pin_state;
+    string direction; //I/O
     int firstcoordinate;
     int secondcoordinate;
 };
@@ -59,7 +93,7 @@ NETS nets[5000];
 
 void readfromDEF()
 {
-    bool pinsfound = false, netsfound = false, finish2 = false;
+    bool designfound = false,pinsfound = false, netsfound = false, finish2 = false;
     ifstream DEF;
     string word;
     int nets_size = 0;
@@ -72,6 +106,22 @@ void readfromDEF()
         while (!DEF.eof())
         {
             DEF >> word;
+            if ((word == "DESIGN") && (designfound == false)) {
+                            DEF >> word;
+                            design_name = word;
+                            designfound = true;
+                        }
+            if ((word == "BUSBITCHARS") ) {
+                            DEF >> word;
+                            bus_del = word.substr(1,word.size()-2);
+
+                        }
+            if ((word == "DIVIDERCHAR") ) {
+                            DEF >> word;
+                            divd = word.substr(1,word.size()-2);
+
+                        }
+
             if (word == "PINS")
             {
                 int index = 0;
@@ -82,9 +132,13 @@ void readfromDEF()
                     if (word == "-")
                     {
 
-                        pins.push_back({ " "," ",0,0 });
+                        pins.push_back({ " "," "," ",0,0 });
                         DEF >> word;
                         pins[index].name = word;
+                    }
+                    if (word == "DIRECTION") {
+                        DEF >> word;
+                        pins[index].direction = word;
                     }
                     if ((word == "PLACED") || (word == "FIXED"))
                     {
@@ -97,7 +151,6 @@ void readfromDEF()
                         pins[index].secondcoordinate = stoi(word);
                         index++;
                     }
-
                     if (word == "END")
                         pinsfound = true;
 
@@ -111,6 +164,7 @@ void readfromDEF()
                 conn c;
                 int j = 0, k = 0;
                 DEF >> word;
+                nets_size=stoi(word);
                 DEF >> word;
                 while (word != "END")
                 {
@@ -123,17 +177,17 @@ void readfromDEF()
                         j = 0;
                         nets_size++;
                         while (word != "+")
-						{
-							DEF >> word;
-							if (word == "(")
-							{
-								DEF >> word;
-								nets[index2].p_type.push_back({ word });
-								DEF >> word;
-								nets[index2].p_name.push_back({ word });
-							}
+                        {
+                            DEF >> word;
+                            if (word == "(")
+                            {
+                                DEF >> word;
+                                nets[index2].p_type.push_back({ word });
+                                DEF >> word;
+                                nets[index2].p_name.push_back({ word });
+                            }
 
-						}
+                        }
                     }
                     if ((word == "ROUTED") || (word == "NEW"))
                     {
@@ -195,13 +249,13 @@ bracket:                        DEF >> word;
 
         }
         for (int i = 0; i < 2; i++)
-		{
-			for (int j = 0; j < nets[i].p_name.size(); j++)
-			{
-				cout << nets[i].p_type[j];
-			}
-			cout << endl;
-		}
+        {
+            for (int j = 0; j < nets[i].p_name.size(); j++)
+            {
+                cout << nets[i].p_type[j];
+            }
+            cout << endl;
+        }
 
     }
     else
@@ -282,6 +336,145 @@ void readfromLEF() {
     }
     LEF.close();
 }
+void write(string filename)
+{
+    ofstream ofile;
+    ofile.open (filename,ios::binary | ios::in);
+
+        if (ofile.is_open()){
+            ofile.clear();
+
+            string str;
+            int len;
+            /*  Header Section begin  */
+            str="*SPEF \"IEEE 1481-2009\"\n"; //Spef version
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DESIGN \""+design_name+"\"\n"; //design name
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DATE \""; //date
+            len=str.length();
+            ofile.write(str.c_str(),len);
+            auto t = std::time(nullptr);
+             auto tm = *std::localtime(&t);
+           std::ostringstream oss;
+            oss << put_time(&tm, "%d-%m-%Y");
+             auto sr = oss.str();
+             len=sr.length();
+             ofile.write(sr.c_str(),len);
+             ofile.write("\"\n",2);
+             str="*VENDOR \"SPEF Generator\"\n"; //
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*PROGRAM \"SPEF Generator\"\n"; //RC EXtrcation tool
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*VERSION \"1.1.0\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DESIGN_FLOW \"NETLIST_TYPE_VERILOG\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DIVIDER "+divd+"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DELIMITER :\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*BUS_DELIMITER "+bus_del+"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*T_UNIT 1 NS\n"; //time units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*C_UNIT 1 PF\n";  //capcaitence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*R_UNIT 1 OHM\n"; //resistence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*L_UNIT 1 HENRY\n"; //inductence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Header Section end  */
+
+             /* Nmap Section begin */
+             map m;
+             str="\n*NAME_MAP\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             for (int i=0;i<pins.size();i++)
+             {
+                if ( m.add(pins[i].name)){
+                 str="*"+to_string(m.search(pins[i].name))+" "+pins[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+                }
+             }
+             for (int i=0;i<nets_size;i++)
+             {
+                 if (m.add(nets[i].name)){
+                 str="*"+to_string(m.search(nets[i].name))+" "+nets[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+             }}
+             /* Nmap Section end */
+
+             /* Ports Section begin */   //primary inputs and outputs
+             str="\n*PORTS\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             for (int i=0;i<pins.size();i++)
+             {
+                if (pins[i].direction=="INPUT"){
+                 str="*"+to_string(m.search(pins[i].name))+" I\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+                }
+                else if (pins[i].direction=="OUTPUT"){
+                 str="*"+to_string(m.search(pins[i].name))+" O\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+                }
+                else if (pins[i].direction==" "){
+                    str="*"+to_string(m.search(pins[i].name))+"\n";
+                    len=str.length();
+                    ofile.write(str.c_str(),len);
+                }
+             }
+             /* Ports Section end */
+
+             /* detailed net Section begin */ //repeat based on number of nets
+            for(int i=0;i<nets_size;i++){
+               int x=m.search(nets[i].name);
+               if (x!=-1){
+             str="\n*D_NET *"+to_string(x)+"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CONN\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CAP\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*RES\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*END\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* detailed net Section end */
+               }
+        }
+       }
+        else {
+            cout<<"unable to open output file"<<endl;
+        }
+    ofile.close();
+}
+
+
 float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, int first_coordinate_y, int second_coordinate_y) {
    cout<<"x1: "<<first_coordinate_x<<"x2: "<<second_coordinate_x<<"y "<<sqrt(pow(first_coordinate_x + second_coordinate_x, 2))<<endl;
     return	sqrt(pow(first_coordinate_x + second_coordinate_x, 2) + pow(first_coordinate_y + second_coordinate_y, 2));
@@ -331,17 +524,17 @@ int main() {
 
     readfromDEF();
     readfromLEF();
-
+    write("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//wav.spef");
    // cout << calculateSheetResistance(stof(find_layer(nets[0].connection[0].layer)),
           //  cout<<calculateSegmentLength(
     nets_size=5000;
    /* for (int j = 0; j < nets_size; j++) {
         cout<<nets[j].name<<endl;
-    }
-  /*  for (int i=0;i<pins.size();i++)
+    }*/
+    for (int i=0;i<pins.size();i++)
     {
         cout<<pins[i].name<<"\t"<<pins[i].pin_state<<"\t"<<pins[i].firstcoordinate<<"\t"<<pins[i].secondcoordinate<<endl;
-    }*/
+    }
    /* for (int j = 0; j < 10; j++) {
         cout<<"Net: "<<endl;
         cout<<nets[j].name<<endl;
@@ -363,7 +556,6 @@ int main() {
 /*
     int x=stoi(nets[0].connection[0].cord[10].x);
     int y=stoi(nets[0].connection[0].cord[10].y);
-
     int x1=stoi(nets[0].connection[0].cord[11].x);
     int y1=y;
     float z=calculateSegmentLength(x,x1,y,y1);
@@ -372,7 +564,6 @@ int main() {
     cout<<calculateSegmentResistance(stof(layers[0].resistance_value),z,stof(layers[0].width))<<endl;
     cout<<calculateSegmentCapacitance(stof(layers[0].width),stof(layers[0].spacing),)
    // int y1=stoi(nets[0].connection[0].cord[11].y);
-
                   cout<< x <<"  "<<y  <<endl;
                   cout<< x1 <<"  "<<nets[0].connection[0].cord[11].y  <<endl;
 */
