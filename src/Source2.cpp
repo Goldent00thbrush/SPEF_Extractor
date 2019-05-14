@@ -530,12 +530,13 @@ int main() {
     nets_size=5000;
    /* for (int j = 0; j < nets_size; j++) {
         cout<<nets[j].name<<endl;
-    }*/
+    }
     for (int i=0;i<pins.size();i++)
     {
         cout<<pins[i].name<<"\t"<<pins[i].pin_state<<"\t"<<pins[i].firstcoordinate<<"\t"<<pins[i].secondcoordinate<<endl;
-    }
-   /* for (int j = 0; j < 10; j++) {
+    }*/
+    /*
+    for (int j = 0; j < 10; j++) {
         cout<<"Net: "<<endl;
         cout<<nets[j].name<<endl;
         cout<<"conn: "<<endl;
@@ -570,7 +571,6 @@ int main() {
                           //, stoi(nets[0].connection[0].cord[1].x), stoi(nets[0].connection[0].cord[0].y), stoi(nets[0].connection[0].cord[1].y))<<endl;
             //, stoi(find_layer(nets[0].connection[0].layer)) << endl;
 
-
     cout << "*CAP" << endl;
         for (int j = 0; j < nets_size; j++) {
             for (int k = 0; k < nets[j].connection.size()-1; k++) {// per segment
@@ -578,6 +578,15 @@ int main() {
                 string c=find_layerC(nets[j].connection[k].layer);
                 string e =find_layerE(nets[j].connection[k].layer);
                 for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                    if (i+1>=nets[j].connection[k].cord.size()) break;
+                    if (nets[j].connection[k].cord[i+1].y=="*")
+                        nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
+                    if (nets[j].connection[k].cord[i+1].x=="*")
+                        nets[j].connection[k].cord[i+1].x=nets[j].connection[k].cord[i].x;
+                    if (nets[j].connection[k].cord[i].y=="*")
+                        nets[j].connection[k].cord[i].y=nets[j].connection[k].cord[i+1].y;
+                    if (nets[j].connection[k].cord[i].x=="*")
+                        nets[j].connection[k].cord[i].x=nets[j].connection[k].cord[i+1].x;
                 cout << i + 1 <<" "<< calculateSegmentCapacitance(stof(w), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)),  stof(c), stof(e)) << endl;
             }
         }
@@ -589,6 +598,15 @@ int main() {
                string w= find_layerW(nets[j].connection[k].layer);
                string r=find_layerR(nets[j].connection[k].layer);
                for (int i=0;i<nets[j].connection[k].cord.size();i++){
+                   if (i+1>=nets[j].connection[k].cord.size()) break;
+                   if (nets[j].connection[k].cord[i+1].y=="*")
+                       nets[j].connection[k].cord[i+1].y=nets[j].connection[k].cord[i].y;
+                   if (nets[j].connection[k].cord[i+1].x=="*")
+                       nets[j].connection[k].cord[i+1].x=nets[j].connection[k].cord[i].x;
+                   if (nets[j].connection[k].cord[i].y=="*")
+                       nets[j].connection[k].cord[i].y=nets[j].connection[k].cord[i+1].y;
+                   if (nets[j].connection[k].cord[i].x=="*")
+                       nets[j].connection[k].cord[i].x=nets[j].connection[k].cord[i+1].x;
                 cout <<nets[j].name << "  " << calculateSegmentResistance(stof(r), calculateSegmentLength(stoi(nets[j].connection[k].cord[i].x), stoi(nets[j].connection[k].cord[i+1].x), stoi(nets[j].connection[k].cord[i].y), stoi(nets[j].connection[k].cord[i+1].y)), stof(w)) << endl;
             }}
         }
