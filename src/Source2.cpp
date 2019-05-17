@@ -92,7 +92,15 @@ struct NETS
     vector <string> vias;
 };
 NETS nets[5000];
-
+vector<coor> searchCoordinates(int first_index, int second_index,NETS nets[5000]){
+    for (int i=0;i<5000;i++){
+        for (int j=0;j<nets[i].connection.size();j++){
+            for (int k=0;j<nets[i].connection[j].cord.size();k++){
+                if ((first_index == stoi(nets[i].connection[j].cord[k].x)) && (second_index == stoi(nets[i].connection[j].cord[k].y))){
+                        return nets[i].connection[j].cord;
+        }
+    }
+}
 void readfromDEF()
 {
     bool designfound = false,pinsfound = false, netsfound = false, finish2 = false;
