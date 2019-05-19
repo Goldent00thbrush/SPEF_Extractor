@@ -1,0 +1,284 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+void write(string filename);
+void readfromDEF();
+class map{      //map to keep track of ports
+    struct single{
+        int num;
+        string name;
+    };
+    single *m;
+    int count=0,pn=0;
+public:
+    map(){
+        m=new single [2000];
+        for(int i=0;i<2000;i++)
+        {
+            m[i].name="";
+            m[i].num=-1;
+        }
+    }
+    bool add(string s){
+       if(search(s)!=-1) return false;
+        pn++;
+        m[count].num=pn;
+        m[count].name=s;
+        count++;
+        return true;
+    }
+    int search(string s){
+        for (int i=0;i<2000;i++)
+            if (m[i].name==s) return m[i].num;
+        return -1;
+    }
+};
+
+struct PINS {
+    string name; //pin name
+    string direction; //direction of the pin I/O
+    string pin_state; //Pin state ( PLACED or FIXED)
+    int firstcoordinate; // the first coordinate of a pin ex: pin cout has a first coordinate 2197
+    int secondcoordinate; //the second coordinate of a pin ex: pin cout has a second coordinate 30
+};
+vector < PINS > pins; //ALL the pins
+struct NETS {
+    string name; //NET NAME
+    string connection[8][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
+};
+NETS nets[50]; //ALL the nets
+int net_no=50;
+string design_name;
+int main()
+{
+    cout << "Hello World!" << endl;
+    readfromDEF();
+    write("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//wav.spef");
+    for (int i = 0; i < net_no; i++)
+        {
+            cout << nets[i].name <<" ";
+            cout << endl;
+        }
+    return 0;
+}
+void write(string filename)
+{
+    ofstream ofile;
+    ofile.open (filename,ios::binary | ios::in);
+
+        if (ofile.is_open()){
+            ofile.clear();
+
+            string str;
+            int len;
+            /*  Header Section begin  */
+            str="*SPEF \"IEEE 1481-2009\"\n"; //Spef version
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DESIGN \""+design_name+"\"\n"; //design name
+             len=str.length();
+            ofile.write(str.c_str(),len);
+            str="*DATE \""; //date
+            len=str.length();
+            ofile.write(str.c_str(),len);
+            auto t = std::time(nullptr);
+             auto tm = *std::localtime(&t);
+           std::ostringstream oss;
+            oss << put_time(&tm, "%d-%m-%Y");
+             auto sr = oss.str();
+             len=sr.length();
+             ofile.write(sr.c_str(),len);
+             ofile.write("\"\n",2);
+             str="*VENDOR \"Sample Tool\"\n"; //
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*PROGRAM \"Sample Generator\"\n"; //RC EXtrcation tool
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*VERSION \"1.1.0\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DESIGN_FLOW \"NETLIST_TYPE_VERILOG\"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DIVIDER /\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*DELIMITER :\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*BUS_DELIMITER < >\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*T_UNIT 1 NS\n"; //time units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*C_UNIT 1 PF\n";  //capcaitence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*R_UNIT 1 OHM\n"; //resistence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*L_UNIT 1 HENRY\n"; //inductence units
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Header Section end  */
+
+             /* Nmap Section begin */
+             map m;
+             str="\n*NAME_MAP\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             for (int i=0;i<pins.size();i++)
+             {
+                if ( m.add(pins[i].name)){
+                 str="*"+to_string(m.search(pins[i].name))+" "+pins[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+                }
+             }
+             for (int i=0;i<net_no;i++)
+             {
+                 if (m.add(nets[i].name)){
+                 str="*"+to_string(m.search(nets[i].name))+" "+nets[i].name+"\n";
+                 len=str.length();
+                 ofile.write(str.c_str(),len);
+             }}
+             /* Nmap Section end */
+
+             /* Ports Section begin */
+             str="\n*PORTS\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* Ports Section end */
+
+             /* detailed net Section begin */ //repeat based on number of nets
+            for(int i=0;i<net_no;i++){
+               int x=m.search(nets[i].name);
+               if (x!=-1){
+             str="\n*D_NET *"+to_string(x)+"\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CONN\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*CAP\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*RES\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             str="*END\n";
+              len=str.length();
+             ofile.write(str.c_str(),len);
+             /* detailed net Section end */
+               }
+        }
+       }
+        else {
+            cout<<"unable to open output file"<<endl;
+        }
+    ofile.close();
+}
+
+
+void readfromDEF() {
+
+    string word, numberofpins, numberofnets;
+    ifstream DEF;
+    bool designfound = false, pinsfound = false, done = false, done2 = false, direction, point, netsfound = false, connectionsdone = false;
+    int count = 0, count2 = 0, count3 = 0;
+    DEF.open("tmp.def");
+    if (DEF.is_open()) {
+        while (!DEF.eof()) {
+            DEF >> word;
+            if ((word == "DESIGN") && (designfound == false)) {
+                DEF >> word;
+                design_name = word;
+                designfound = true;
+            }
+            if ((word == "PINS") && (pinsfound == false)) {
+                DEF >> word;
+                numberofpins = word;
+                string n, dir, first, second, state;
+
+                while (done == false) {
+                    DEF >> word;
+                    if (word == "-") {
+                        DEF >> n; //name
+                        direction = false;
+                        point = false;
+                        do {
+                            DEF >> word;
+
+                            if (word == "DIRECTION") {
+                                DEF >> dir;
+                                direction = true;
+                            }
+                            if (word == "FIXED" || word == "PLACED") {
+                                state = word;
+                                DEF >> word;
+                                DEF >> first;
+                                DEF >> second;
+                                point = true;
+                                pins.push_back({n,dir,state,stoi(first),stoi(second)});
+                            }
+                        } while ((direction == false) || (point == false));
+                        count++;
+                    }
+                    if (count == stoi(numberofpins)) {
+                        done = true;
+                    }
+                }
+                pinsfound = true;
+            }
+
+            if ((word == "NETS") && (netsfound == false)) {
+                DEF >> word;
+                numberofnets = word;
+
+                while (done2 == false) {
+                    DEF >> word;
+                    int i = 0;
+                    if (word == "-") {
+                        DEF >> word;
+                        nets[count2].name = word;
+
+                        do {
+                            DEF >> word;
+
+                            if (word == "(") {
+
+                                DEF >> word;
+                                nets[count2].connection[i][0] = word;
+                                DEF >> word;
+                                nets[count2].connection[i][1] = word;
+                            }
+                            if (word == ")") {
+                                i++;
+                            }
+
+                        } while (word != ";");
+                        count2++;
+
+                    }
+                    if (count2 == stoi(numberofnets)) {
+                        done2 = true;
+                    }
+
+                }
+                netsfound = true;
+            }
+        }
+    }
+    else {
+        cout << "unable to open DEF file" << endl;
+    }
+    DEF.close();
+}
