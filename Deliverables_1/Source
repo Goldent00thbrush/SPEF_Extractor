@@ -1,0 +1,196 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+struct PINS {
+	string name; //pin name
+	string direction; //direction of the pin I/O
+	string pin_state; //Pin state ( PLACED or FIXED)
+	int firstcoordinate; // the first coordinate of a pin ex: pin cout has a first coordinate 2197 
+	int secondcoordinate; //the second coordinate of a pin ex: pin cout has a second coordinate 30
+};
+vector < PINS > pins; //ALL the pins
+
+struct NETS {
+	string name; //NET NAME
+	string connection[10][2]; //CONNECTIONS OF THE NET (type[0] name[1]) ex: PIN A or AND2X1 Y
+};
+NETS nets[50]; //ALL the nets
+
+struct Layer {
+	string name; //Layer Name
+	string resistance_unit; //Layer resistance unit (RPERSQ Mostly)
+	string resistance_value; //Layer resistance value
+	string capacitance_unit; //Layer Capacitance unit (CPERSQDIST Mostly)
+	string capacitance_value; //Layer Capacitance value
+	string edgecapacitance; //Layer edge capacitance 
+
+};
+vector < Layer > layers; //those are the layers of TYPE ROUTING only
+vector < string > all_layers; //those are all the layers in a file
+
+struct VIA {
+	string name; //the VIA Name
+	string resistance; //the VIA resistance
+};
+vector < VIA > via; //ALL the VIAS
+
+ void readfromDEF()
+{
+
+	string word,numberofpins,numberofnets,design_name;
+	ifstream DEF;
+	bool designfound = false, pinsfound = false, done = false, done2 = false, direction, point, netsfound = false, connectionsdone = false;
+	int count = 0, count2 = 0, count3 = 0;
+	DEF.open("tmp.def");
+	if (DEF.is_open())
+	{
+		while (!DEF.eof())
+		{
+			DEF >> word;
+			if ((word == "DESIGN") && (designfound==false))
+			{
+				DEF >> word;
+				cout << "the design name is:" << word << endl;
+								design_name = word;
+
+        designfound = true;
+			}
+			if ((word == "PINS") && (pinsfound == false))
+			{
+				DEF >> word; 
+				numberofpins = word;
+				cout << "number of pins: " << numberofpins << endl;
+        				string n, dir, first, second, state;
+
+				while (done == false)
+				{
+					DEF >> word;
+						if (word == "-")
+						{
+							DEF >> word;
+              							pins[count].name = word;
+
+							cout << word<<endl;
+							direction = false;
+							point = false;
+							do{
+
+ 								DEF >> word;
+								if (word == "DIRECTION")
+								{
+									DEF >> word;
+                  									pins[count].direction = word;
+
+
+ 									cout << word << endl;
+									direction = true;
+								}
+								if (word == "FIXED" || word == "PLACED")
+								{
+									cout << word << endl;
+                  									pins[count].pin_state=word;
+
+									DEF>> word;
+                  									pins[count].firstcoordinate = stoi(word);
+
+									DEF >> word;
+                  									pins[count].secondcoordinate = stoi(word);
+
+									cout << "firstnumber" << word<<endl;
+									DEF >> word;
+									cout << "Secondnumber" << word << endl;
+									point = true;
+								}
+							}while ((direction == false) || (point==false));
+							count++;
+						}
+						if (count == stoi(numberofpins))
+						{
+							done = true;
+						}
+
+ 				}
+				pinsfound = true;
+			}
+      if ((word == "NETS") && (netsfound == false))
+			{
+				DEF >> word;
+				numberofnets = word;
+
+				while (done2 == false)
+				{
+					DEF >> word;
+					int i = 0;
+							if (word == "-")
+							{
+								DEF >> word;
+								nets[count2].name = word;
+
+
+								do {
+									DEF >> word;
+
+									if (word == "(")
+									{
+
+										DEF >> word;
+										nets[count2].connection[i][0] = word;
+										DEF >> word;
+										nets[count2].connection[i][1] = word;
+									}
+									if (word == ")")
+									{
+										i++;
+									}
+
+
+
+								} while (word!=";");
+									count2++;
+
+							}
+							if (count2 == stoi(numberofnets))
+							{
+								done2 = true;
+							}
+
+
+
+				}
+				netsfound = true;
+			}
+		}
+	}
+
+ 	else
+	{
+		cout << "unable to open input file" << endl;
+	}
+
+DEF.close();
+}
+
+ void readfromLEF()
+{
+
+ }
+
+ int main()
+{
+
+ 	readfromDEF();
+  for (int i = 0; i < 14; i++)
+	{
+		cout << pins[i].name <<" ";
+		cout << pins[i].direction<<" ";
+		cout << pins[i].pin_state << " ";
+		cout << pins[i].firstcoordinate <<" ";
+		cout << pins[i].secondcoordinate<<" ";
+		cout << endl;
+	}
+	system("PAUSE");
+	return 0;
+} 
