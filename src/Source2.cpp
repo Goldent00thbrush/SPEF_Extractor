@@ -131,7 +131,7 @@ void readfromDEF()
     ifstream DEF;
     string word;
     int nets_size = 0;
-    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu.def");
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu2.def");
 
     if (DEF.is_open())
     {
@@ -185,6 +185,9 @@ comps.push_back(cq);
                DEF>>word;
                DEF>>word;
 if (word==";") DEF>>word;
+cq.name.clear();
+cq.fcor=0;
+cq.scor=0;
               }}
 DEF>>word;
             }
@@ -544,6 +547,8 @@ float resistanceBetweenNodes(int j, int k, int l, int k2, int p) {
 
             k2--;
         }
+        //vias
+
         return r2;
     }
 
@@ -808,7 +813,7 @@ void write(string filename)
                        // find_idx(i,c1[0],l1,m1);
                        // find_idx(i,c2[0],l2,m2);
                        r= resistanceBetweenNodes(i,l1,m1,l2,m2);
-                       str=count+" "+nets[i].p_type[k]+":"+nets[i].p_name[k]+" \n";
+                       str=count+" "+nets[i].p_type[k]+":"+nets[i].p_name[k]+" "+to_string(r) +" \n";
                        len=str.length();
                       ofile.write(str.c_str(),len);
                        count++;
