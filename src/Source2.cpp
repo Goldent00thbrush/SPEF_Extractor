@@ -190,6 +190,8 @@ cq.fcor=0;
 cq.scor=0;
               }}
 DEF>>word;
+for (int p=0;p<comps.size();p++)
+    cout<<comps[p].name<<"  "<<comps[p].fcor<<" "<<comps[p].scor<<endl;
             }
             if (word == "PINS")
             {
@@ -813,7 +815,7 @@ void write(string filename)
                        // find_idx(i,c1[0],l1,m1);
                        // find_idx(i,c2[0],l2,m2);
                        r= resistanceBetweenNodes(i,l1,m1,l2,m2);
-                       str=count+" "+nets[i].p_type[k]+":"+nets[i].p_name[k]+" "+to_string(r) +" \n";
+                       str=to_string(count)+" "+nets[i].p_type[j]+":"+nets[i].p_name[j]+" "+nets[i].p_type[k]+":"+nets[i].p_name[k]+" "+to_string(r) +" \n";
                        len=str.length();
                       ofile.write(str.c_str(),len);
                        count++;
