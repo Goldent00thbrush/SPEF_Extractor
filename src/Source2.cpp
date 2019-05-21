@@ -133,7 +133,7 @@ void readfromDEF()
     ifstream DEF;
     string word;
     int nets_size = 0;
-    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu2.def");
+    DEF.open("D://College//Semester 10-- Spring 2019//CSCE3304 - Digital Design II//Assignments//pro2//untitled//cpu.def");
 
     if (DEF.is_open())
     {
@@ -193,7 +193,7 @@ cq.scor=0;
               }}
 DEF>>word;
 for (int p=0;p<comps.size();p++)
-    cout<<comps[p].name<<"  "<<comps[p].fcor<<" "<<comps[p].scor<<endl;
+   ;// cout<<comps[p].name<<"  "<<comps[p].fcor<<" "<<comps[p].scor<<endl;
             }
             if (word == "PINS")
             {
@@ -321,7 +321,7 @@ bracket:                        DEF >> word;
             }
 
         }
-        for (int i = 0; i < 2; i++)
+      /*  for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < nets[i].p_name.size(); j++)
             {
@@ -329,7 +329,7 @@ bracket:                        DEF >> word;
             }
             cout << endl;
         }
-
+*/
     }
     else
     {
@@ -412,7 +412,7 @@ void readfromLEF() {
 
 
 float calculateSegmentLength(int first_coordinate_x, int second_coordinate_x, int first_coordinate_y, int second_coordinate_y) {
-   cout<<"x1: "<<first_coordinate_x<<"x2: "<<second_coordinate_x<<"y "<<sqrt(pow(first_coordinate_x + second_coordinate_x, 2))<<endl;
+  // cout<<"x1: "<<first_coordinate_x<<"x2: "<<second_coordinate_x<<"y "<<sqrt(pow(first_coordinate_x + second_coordinate_x, 2))<<endl;
     return	sqrt(pow(first_coordinate_x + second_coordinate_x, 2) + pow(first_coordinate_y + second_coordinate_y, 2));
 }
 float calculateSegmentCapacitance(float width, float spacing, float capacitance, float edge_capacitance) { //area*CPERSQDIST+length*EDGECAP from LEF
