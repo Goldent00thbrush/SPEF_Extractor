@@ -121,9 +121,11 @@ void find_cr(string name, int &fcor, int &scor)
         {
             fcor=comps[r].fcor;
             scor=comps[r].scor;
-            break;
+            return;
         }
     }
+    fcor=-1;
+    scor=-1;
 }
 void readfromDEF()
 {
@@ -806,12 +808,14 @@ void write(string filename)
                         int f=0,s=0,l1=0,m1=0,l2=0,m2=0,r=0;
                         if (nets[i].p_type[j]!="PIN")
                                  find_cr(nets[i].p_type[j],f,s);
+                        if (f==-1) continue;
                         searchCoordinates(i,f,s,l1,m1);
-                        if (l1==-1)continue;
+                        if (l1==-1 )continue;
                         if (nets[i].p_type[k]!="PIN")
                                  find_cr(nets[i].p_type[k],f,s);
+                        if (f==-1) continue;
                         searchCoordinates(i,f,s,l2,m2);
-                        if (l1==-1)continue;
+                        if (l2==-1 || f==-1)continue;
                        // find_idx(i,c1[0],l1,m1);
                        // find_idx(i,c2[0],l2,m2);
                        r= resistanceBetweenNodes(i,l1,m1,l2,m2);
